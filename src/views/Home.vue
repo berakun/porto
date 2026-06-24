@@ -24,8 +24,8 @@
           </div>
         </div>
 
-        <!-- Navigation Links -->
-        <div class="flex items-center gap-6 md:gap-10">
+        <!-- Navigation Links (Desktop) -->
+        <div class="hidden md:flex items-center gap-6 md:gap-10">
           <button
             type="button"
             @click="scrollToSection('hero')"
@@ -60,8 +60,72 @@
             </span>
           </button>
         </div>
+
+        <!-- Mobile Controls (Mobile Only) -->
+        <div class="flex md:hidden items-center gap-3">
+          <!-- Theme Switcher -->
+          <button
+            type="button"
+            @click="toggleTheme"
+            class="p-2 rounded-full border border-gray-200 dark:border-white/10 text-gray-600 dark:text-on-surface-variant hover:text-yellow-600 dark:hover:text-primary hover:border-yellow-600 dark:hover:border-primary transition-all"
+            aria-label="Toggle Theme"
+          >
+            <span class="material-symbols-outlined block text-base">
+              {{ theme === 'dark' ? 'light_mode' : 'dark_mode' }}
+            </span>
+          </button>
+          
+          <!-- Hamburger Button -->
+          <button
+            type="button"
+            @click="isMobileMenuOpen = !isMobileMenuOpen"
+            class="p-2 rounded-full border border-gray-200 dark:border-white/10 text-gray-600 dark:text-on-surface-variant transition-all focus:outline-none"
+            aria-label="Toggle Menu"
+          >
+            <span class="material-symbols-outlined block text-base font-bold">
+              {{ isMobileMenuOpen ? 'close' : 'menu' }}
+            </span>
+          </button>
+        </div>
       </div>
     </nav>
+
+    <!-- Mobile Menu Dropdown -->
+    <transition
+      enter-active-class="transition duration-300 ease-out"
+      enter-from-class="transform -translate-y-4 opacity-0"
+      enter-to-class="transform translate-y-0 opacity-100"
+      leave-active-class="transition duration-200 ease-in"
+      leave-from-class="transform translate-y-0 opacity-100"
+      leave-to-class="transform -translate-y-4 opacity-0"
+    >
+      <div
+        v-if="isMobileMenuOpen"
+        class="fixed top-20 left-0 right-0 z-40 bg-white/95 dark:bg-[#0b0f17]/95 backdrop-blur-xl border-b border-gray-200/50 dark:border-white/10 py-6 px-6 flex flex-col gap-4 shadow-lg md:hidden"
+      >
+        <button
+          type="button"
+          @click="scrollToSectionMobile('hero')"
+          class="text-left py-2.5 text-xs font-code-sm font-semibold tracking-wider text-gray-600 dark:text-on-surface-variant hover:text-yellow-600 dark:hover:text-primary transition-colors border-b border-gray-100 dark:border-white/5"
+        >
+          01. HOME
+        </button>
+        <button
+          type="button"
+          @click="scrollToSectionMobile('about')"
+          class="text-left py-2.5 text-xs font-code-sm font-semibold tracking-wider text-gray-600 dark:text-on-surface-variant hover:text-yellow-600 dark:hover:text-primary transition-colors border-b border-gray-100 dark:border-white/5"
+        >
+          02. ABOUT
+        </button>
+        <button
+          type="button"
+          @click="scrollToSectionMobile('portfolio')"
+          class="text-left py-2.5 text-xs font-code-sm font-semibold tracking-wider text-gray-600 dark:text-on-surface-variant hover:text-yellow-600 dark:hover:text-primary transition-colors"
+        >
+          03. PORTFOLIO
+        </button>
+      </div>
+    </transition>
 
     <!-- Hero Section -->
     <section id="hero" class="min-h-screen pt-28 flex items-center relative z-10 px-6 md:px-12 dark:bg-[#0b0f17]">
@@ -118,7 +182,7 @@
           </div>
           
           <!-- Hero Right Detail (Giant Semi-Circle) -->
-          <div class="lg:col-span-5 flex justify-end h-full relative">
+          <div class="hidden lg:flex lg:col-span-5 justify-end h-full relative">
             <div
               class="w-[350px] h-[350px] sm:w-[450px] sm:h-[450px] md:w-[350px] md:h-[500px] rounded-l-full border transition-all duration-700 pointer-events-none"
               :class="[
@@ -233,22 +297,22 @@
           :class="[theme === 'dark' ? 'bg-[#0f1420] border-white/5' : 'bg-gray-50 border-gray-200']"
         >
           <!-- Left sidebar (Tabs navigation) -->
-          <div class="lg:col-span-3 border-r flex flex-col py-6"
+          <div class="lg:col-span-3 border-b lg:border-b-0 lg:border-r flex flex-row lg:flex-col py-4 lg:py-6 overflow-x-auto lg:overflow-x-visible scrollbar-none"
             :class="[theme === 'dark' ? 'bg-black/10 border-white/5' : 'bg-gray-100 border-gray-200']"
           >
             <button 
               v-for="cat in categories"
               :key="cat.id"
               @click="activeCategory = cat.id"
-              class="w-full text-left px-8 py-4 font-code-sm text-xs font-semibold transition-all duration-200 flex items-center justify-between"
+              class="w-auto lg:w-full flex-shrink-0 text-left px-6 lg:px-8 py-3 lg:py-4 font-code-sm text-xs font-semibold transition-all duration-200 flex items-center justify-between gap-4"
               :class="[
                 activeCategory === cat.id 
-                  ? 'text-yellow-600 dark:text-primary border-l-4 border-yellow-600 dark:border-primary bg-yellow-600/5 dark:bg-primary/5'
+                  ? 'text-yellow-600 dark:text-primary border-b-2 lg:border-b-0 lg:border-l-4 border-yellow-600 dark:border-primary bg-yellow-600/5 dark:bg-primary/5'
                   : 'text-gray-500 hover:text-gray-800 dark:hover:text-white'
               ]"
             >
               {{ cat.label }}
-              <span class="material-symbols-outlined text-sm" v-if="activeCategory === cat.id">chevron_right</span>
+              <span class="material-symbols-outlined text-sm hidden lg:inline" v-if="activeCategory === cat.id">chevron_right</span>
             </button>
           </div>
 
@@ -428,11 +492,17 @@ const theme = ref('dark')
 const isHidden = ref(false)
 const onIsHidden = ref(false)
 const sentStatus = ref(false)
+const isMobileMenuOpen = ref(false)
 
 const lastScrollTop = ref(0)
 const onLastScrollTop = ref(0)
 
 const activeCategory = ref('development')
+
+const scrollToSectionMobile = (id) => {
+  isMobileMenuOpen.value = false
+  scrollToSection(id)
+}
 
 const toggleTheme = () => {
   theme.value = theme.value === 'dark' ? 'light' : 'dark'
@@ -602,5 +672,15 @@ onUnmounted(() => {
 }
 .font-code-sm {
   font-family: monospace;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 </style>
