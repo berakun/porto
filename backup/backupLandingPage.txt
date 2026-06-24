@@ -1,0 +1,137 @@
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+// export const bgLingkar = 'bg-blue-900';
+export const bgLingkar = 'bg-gray-950';
+// import Ig from '../icon/instagram.png';
+
+
+const First: React.FC = () => {
+
+  // Scroll Top
+  const [isHidden, setIsHidden] = useState(false);
+  const lastScrollTop = useRef(0);
+
+  const handleScroll = useCallback(() => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    if (scrollTop > lastScrollTop.current) {
+      setIsHidden(true);
+    } else {
+      setIsHidden(false);
+    }
+    lastScrollTop.current = scrollTop;
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [handleScroll]);
+
+  // Scroll Until Top
+  const [onIsHidden, onSetIsHidden] = useState(false);
+  const onLastScrollTop = useRef(0);
+
+  const onHandleScroll = useCallback(() => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    if (scrollTop > onLastScrollTop.current) {
+      onSetIsHidden(true);
+    } else if (scrollTop === 0) {
+      onSetIsHidden(false);
+    }
+    onLastScrollTop.current = scrollTop;
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('scroll', onHandleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', onHandleScroll);
+    };
+  }, [onHandleScroll]);
+
+  //Button Click
+  const onClick = () => {
+    window.location.href = '/';
+  };
+
+  const onClickHome = () => {
+    window.location.href = '/';
+  };
+
+  const onClickAbout = () => {
+    window.location.href = '/';
+  };
+
+  const onClickPorto = () => {
+    window.location.href = '/';
+  };
+
+
+  return (
+    <section className='bg-black text-gray-500'>
+      {/* // <section className='bg-white text-black'> */}
+
+      {/* NAVBAR */}
+      <nav className={`h-14 container mx-auto flex justify-between items-center fixed top-0 left-0 right-0 p-4 z-10 transition-transform duration-700 ${isHidden ? '-translate-y-full' : 'translate-y-0'}`} id='navbar'>
+        <div className='flex items-center text-2xl gap-7'>
+          <div className='border-b-2 rounded-sm border-blue-950 w-6'>
+            Rifki
+          </div>
+          <div>
+            Firdaus
+          </div>
+        </div>
+        <div className='flex items-center gap-10'>
+          <button type='button' onClick={onClickHome} className='hover:text-red-700 hover:font-bold transition rounded-md duration-75 p-2'>
+            {/* <img src={Ig} alt="Static Icon" className="w-10 h-10 hover:bg-gray-700 hover:text-white" /> */}
+            HOME
+          </button>
+          <button type='button' onClick={onClickAbout} className='hover:text-red-700 hover:font-bold transition rounded-md duration-75 p-2'>
+            {/* <img src={Ig} alt="Static Icon" className="w-10 h-10 hover:bg-gray-700 hover:text-white" /> */}
+            ABOUT
+          </button>
+          <button type='button' onClick={onClickPorto} className='hover:text-red-700 hover:font-bold transition rounded-md duration-75 p-2'>
+            {/* <img src={Ig} alt="Static Icon" className="w-10 h-10 hover:bg-gray-700 hover:text-white" /> */}
+            PORTOFOLIO
+          </button>
+        </div>
+      </nav >
+
+      {/* FIRST PAGE */}
+      <div className='h-[85vh] flex items-center'>
+        <div className='pl-10 grid grid-flow-row-dense grid-cols-3 grid-rows-3 container mx-auto h-64 border-l-8 border-blue-950 gap-7 rounded-lg'>
+          <div className='col-span-2 text-left pr-[10vh] flex text-5xl pb-2 items-end'>
+            {/* Split pertama */}
+            Hey, I’m Web Developer,
+          </div>
+          <div className='col-span-2 pr-[30vh]'>
+            Hi, I’m a Web Developer from Yogyakarta. I create custom websites that help brands stand out online. Specializing in responsive design and user experience, I’m here to bring your vision to life. Let’s create something amazing together!
+          </div>
+          <div className='col-span-2 pr-[50vh] pt-4 flex items-center justify-center'>
+            <button type='button' onClick={onClick} className='bg-green-700 text-white rounded-lg transition duration-300 hover:bg-green-950 p-2 shadow-md'>
+              My Portofolio!
+            </button>
+          </div>
+          <div>
+            {/* Split kedua */}
+            <div className={`fixed top-28 right-0 lg:h-[80vh] lg:w-[40vh] ${bgLingkar} rounded-l-full transition-opacity duration-700 ${onIsHidden ? 'opacity-0' : 'opacity-100'}`} />
+          </div>
+        </div>
+      </div>
+
+      {/* SECOND PAGE */}
+      <div className='h-[80vh] pl-10 container mx-auto pt-24 grid grid-rows-2'>
+        <div className='fiex justify-center'>
+          <div className='flex pt-16 text-xl'>
+            About
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default First;
