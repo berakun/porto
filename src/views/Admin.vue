@@ -459,7 +459,8 @@
             </div>
           </div>
 
-          <!-- Summary Cards (Dashboard) -->
+          <!-- Summary Cards (Dashboard/Analytics only) -->
+          <div v-if="activeTab === 'dashboard' || activeTab === 'analytics'" class="space-y-8">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Card 1 -->
             <div class="p-6 rounded-2xl border relative overflow-hidden group hover:border-yellow-600/40 dark:hover:border-primary/40 transition-colors"
@@ -646,6 +647,7 @@
               </table>
             </div>
           </div>
+          </div> <!-- end analytics/dashboard only -->
         </section>
 
         <!-- Footer -->
