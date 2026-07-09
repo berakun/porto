@@ -24,8 +24,8 @@
           </div>
         </div>
 
-        <!-- Navigation Links (Desktop) -->
-        <div class="hidden md:flex items-center gap-6 md:gap-10">
+        <!-- Navigation Links -->
+        <div class="flex items-center gap-6 md:gap-10">
           <button
             type="button"
             @click="scrollToSection('hero')"
@@ -42,10 +42,17 @@
           </button>
           <button
             type="button"
+            @click="scrollToSection('experience')"
+            class="text-[11px] md:text-xs font-code-sm font-semibold transition-all duration-200 text-gray-600 dark:text-on-surface-variant hover:text-red-700 dark:hover:text-primary relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-yellow-600 dark:after:bg-primary hover:after:w-full after:transition-all"
+          >
+            03. EXPERIENCE
+          </button>
+          <button
+            type="button"
             @click="scrollToSection('portfolio')"
             class="text-[11px] md:text-xs font-code-sm font-semibold transition-all duration-200 text-gray-600 dark:text-on-surface-variant hover:text-red-700 dark:hover:text-primary relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-yellow-600 dark:after:bg-primary hover:after:w-full after:transition-all"
           >
-            03. PORTFOLIO
+            04. EXPERTISE
           </button>
 
           <!-- Theme Switcher -->
@@ -57,75 +64,11 @@
           >
             <span class="material-symbols-outlined block text-base">
               {{ theme === 'dark' ? 'light_mode' : 'dark_mode' }}
-            </span>
-          </button>
-        </div>
-
-        <!-- Mobile Controls (Mobile Only) -->
-        <div class="flex md:hidden items-center gap-3">
-          <!-- Theme Switcher -->
-          <button
-            type="button"
-            @click="toggleTheme"
-            class="p-2 rounded-full border border-gray-200 dark:border-white/10 text-gray-600 dark:text-on-surface-variant hover:text-yellow-600 dark:hover:text-primary hover:border-yellow-600 dark:hover:border-primary transition-all"
-            aria-label="Toggle Theme"
-          >
-            <span class="material-symbols-outlined block text-base">
-              {{ theme === 'dark' ? 'light_mode' : 'dark_mode' }}
-            </span>
-          </button>
-          
-          <!-- Hamburger Button -->
-          <button
-            type="button"
-            @click="isMobileMenuOpen = !isMobileMenuOpen"
-            class="p-2 rounded-full border border-gray-200 dark:border-white/10 text-gray-600 dark:text-on-surface-variant transition-all focus:outline-none"
-            aria-label="Toggle Menu"
-          >
-            <span class="material-symbols-outlined block text-base font-bold">
-              {{ isMobileMenuOpen ? 'close' : 'menu' }}
             </span>
           </button>
         </div>
       </div>
     </nav>
-
-    <!-- Mobile Menu Dropdown -->
-    <transition
-      enter-active-class="transition duration-300 ease-out"
-      enter-from-class="transform -translate-y-4 opacity-0"
-      enter-to-class="transform translate-y-0 opacity-100"
-      leave-active-class="transition duration-200 ease-in"
-      leave-from-class="transform translate-y-0 opacity-100"
-      leave-to-class="transform -translate-y-4 opacity-0"
-    >
-      <div
-        v-if="isMobileMenuOpen"
-        class="fixed top-20 left-0 right-0 z-40 bg-white/95 dark:bg-[#0b0f17]/95 backdrop-blur-xl border-b border-gray-200/50 dark:border-white/10 py-6 px-6 flex flex-col gap-4 shadow-lg md:hidden"
-      >
-        <button
-          type="button"
-          @click="scrollToSectionMobile('hero')"
-          class="text-left py-2.5 text-xs font-code-sm font-semibold tracking-wider text-gray-600 dark:text-on-surface-variant hover:text-yellow-600 dark:hover:text-primary transition-colors border-b border-gray-100 dark:border-white/5"
-        >
-          01. HOME
-        </button>
-        <button
-          type="button"
-          @click="scrollToSectionMobile('about')"
-          class="text-left py-2.5 text-xs font-code-sm font-semibold tracking-wider text-gray-600 dark:text-on-surface-variant hover:text-yellow-600 dark:hover:text-primary transition-colors border-b border-gray-100 dark:border-white/5"
-        >
-          02. ABOUT
-        </button>
-        <button
-          type="button"
-          @click="scrollToSectionMobile('portfolio')"
-          class="text-left py-2.5 text-xs font-code-sm font-semibold tracking-wider text-gray-600 dark:text-on-surface-variant hover:text-yellow-600 dark:hover:text-primary transition-colors"
-        >
-          03. PORTFOLIO
-        </button>
-      </div>
-    </transition>
 
     <!-- Hero Section -->
     <section id="hero" class="min-h-screen pt-28 flex items-center relative z-10 px-6 md:px-12 dark:bg-[#0b0f17]">
@@ -163,7 +106,7 @@
               <!-- Terminal body -->
               <div class="p-6">
                 <p class="text-xs md:text-sm text-gray-600 dark:text-[#dee2f1] font-code-sm text-justify leading-relaxed mb-6">
-                  <span class="text-yellow-600 dark:text-primary font-semibold">A Web Developer and Chatbot Developer</span> based in Yogyakarta. I build custom websites and develop interactive chatbots that help brands stand out online. With expertise in responsive design, user experience, and intelligent chatbot development.
+                  <span class="text-yellow-600 dark:text-primary font-semibold">A Full-stack Developer specializing in AI Chatbots & Web Applications</span> based in Yogyakarta. I build custom websites and maintain chatbot AI systems with JavaScript-based agentic architecture. With expertise in Vue.js, PHP Laravel, and creating custom dashboards for monitoring & analytics.
                 </p>
                 <button
                   type="button"
@@ -182,7 +125,7 @@
           </div>
           
           <!-- Hero Right Detail (Giant Semi-Circle) -->
-          <div class="hidden lg:flex lg:col-span-5 justify-end h-full relative">
+          <div class="lg:col-span-5 flex justify-end h-full relative">
             <div
               class="w-[350px] h-[350px] sm:w-[450px] sm:h-[450px] md:w-[350px] md:h-[500px] rounded-l-full border transition-all duration-700 pointer-events-none"
               :class="[
@@ -239,7 +182,7 @@
             </div>
 
             <p class="text-sm md:text-base text-gray-600 dark:text-on-surface-variant text-justify leading-relaxed">
-              I am a Computer Science graduate, class of 2022, with a strong foundation in web development and a specialization in frontend technologies. Since graduating, I have been working as a Chatbot Developer, where I have honed my skills in building interactive and user-friendly applications. My technical expertise includes React, PHP, and REST API, which I leverage to create dynamic, responsive interfaces that enhance user engagement. I am particularly passionate about frontend development and enjoy the process of turning ideas into visually appealing and functional web applications.
+              I am a Computer Science graduate, class of 2022, with 4+ years of experience at Botika specializing in web application development and conversational AI systems. For nearly 4 years as a Chatbot AI Developer, I built, maintained, and customized chatbot platforms for enterprise clients — from designing conversation flows to managing production deployments and creating custom dashboards for monitoring and analytics. In my current role as Full-stack Developer, I continue maintaining chatbot AI systems built with JavaScript-based agentic architecture, while developing web applications with Vue.js and PHP Laravel backends.
             </p>
           </div>
 
@@ -273,8 +216,8 @@
             >
               <div>
                 <span class="text-[10px] font-code-sm uppercase tracking-widest text-yellow-600 dark:text-primary mb-1 block">Selected Role</span>
-                <h4 class="text-lg font-bold text-gray-800 dark:text-white">Fullstack at Botika</h4>
-                <p class="text-xs text-gray-500 dark:text-on-surface-variant/80 mt-1">Developing chatbots and Custom Dashboard.</p>
+                <h4 class="text-lg font-bold text-gray-800 dark:text-white">Full-stack Developer at Botika</h4>
+                <p class="text-xs text-gray-500 dark:text-on-surface-variant/80 mt-1">Maintaining chatbot AI systems & building custom dashboards.</p>
               </div>
               <span class="material-symbols-outlined text-4xl text-yellow-600 dark:text-primary opacity-60">architecture</span>
             </div>
@@ -284,11 +227,49 @@
       </div>
     </section>
 
+    <!-- Experience Section -->
+    <section id="experience" class="py-28 border-t relative z-10 px-6 md:px-12 dark:bg-[#0b0f17] border-gray-150 dark:border-white/5">
+      <div class="container mx-auto">
+        <div class="text-center mb-16">
+          <span class="text-xs font-code-sm text-yellow-600 dark:text-primary tracking-widest uppercase mb-3 block">03. EXPERIENCE</span>
+          <h3 class="font-display-lg text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Projects & Work</h3>
+          <p class="text-xs font-code-sm text-gray-500 dark:text-on-surface-variant/80 mt-2">Featured projects and contributions</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div 
+            v-for="exp in experiences" 
+            :key="exp.id"
+            class="p-6 rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+            :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5 hover:border-primary/20' : 'bg-white border-gray-200']">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="material-symbols-outlined text-2xl text-yellow-600 dark:text-primary">{{ exp.icon || 'work' }}</span>
+              <div>
+                <h4 class="text-base font-bold text-gray-800 dark:text-white">{{ exp.title }}</h4>
+                <p class="text-[10px] font-code-sm text-gray-500 dark:text-on-surface-variant/80">{{ exp.role }}</p>
+              </div>
+            </div>
+            <p class="text-xs text-gray-600 dark:text-on-surface-variant/80 mb-4 text-justify">
+              {{ exp.description }}
+            </p>
+            <div class="flex flex-wrap gap-1.5">
+              <span 
+                v-for="tag in exp.tags" 
+                :key="tag"
+                class="text-[9px] font-semibold bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-on-surface-variant px-2 py-0.5 rounded border border-gray-200/50 dark:border-white/5">
+                {{ tag }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Core Tech Stack Section -->
     <section id="portfolio" class="py-28 border-t relative z-10 px-6 md:px-12 dark:bg-[#0b0f17] border-gray-150 dark:border-white/5">
       <div class="container mx-auto">
         <div class="text-center mb-16">
-          <span class="text-xs font-code-sm text-yellow-600 dark:text-primary tracking-widest uppercase mb-3 block">03. EXPERTISE</span>
+          <span class="text-xs font-code-sm text-yellow-600 dark:text-primary tracking-widest uppercase mb-3 block">04. EXPERTISE</span>
           <h3 class="font-display-lg text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Core Tech Stack</h3>
           <p class="text-xs font-code-sm text-gray-500 dark:text-on-surface-variant/80 mt-2">Featured tools and technologies</p>
         </div>
@@ -297,22 +278,22 @@
           :class="[theme === 'dark' ? 'bg-[#0f1420] border-white/5' : 'bg-gray-50 border-gray-200']"
         >
           <!-- Left sidebar (Tabs navigation) -->
-          <div class="lg:col-span-3 border-b lg:border-b-0 lg:border-r flex flex-row lg:flex-col py-4 lg:py-6 overflow-x-auto lg:overflow-x-visible scrollbar-none"
+          <div class="lg:col-span-3 border-r flex flex-col py-6"
             :class="[theme === 'dark' ? 'bg-black/10 border-white/5' : 'bg-gray-100 border-gray-200']"
           >
             <button 
               v-for="cat in categories"
               :key="cat.id"
               @click="activeCategory = cat.id"
-              class="w-auto lg:w-full flex-shrink-0 text-left px-6 lg:px-8 py-3 lg:py-4 font-code-sm text-xs font-semibold transition-all duration-200 flex items-center justify-between gap-4"
+              class="w-full text-left px-8 py-4 font-code-sm text-xs font-semibold transition-all duration-200 flex items-center justify-between"
               :class="[
                 activeCategory === cat.id 
-                  ? 'text-yellow-600 dark:text-primary border-b-2 lg:border-b-0 lg:border-l-4 border-yellow-600 dark:border-primary bg-yellow-600/5 dark:bg-primary/5'
+                  ? 'text-yellow-600 dark:text-primary border-l-4 border-yellow-600 dark:border-primary bg-yellow-600/5 dark:bg-primary/5'
                   : 'text-gray-500 hover:text-gray-800 dark:hover:text-white'
               ]"
             >
               {{ cat.label }}
-              <span class="material-symbols-outlined text-sm hidden lg:inline" v-if="activeCategory === cat.id">chevron_right</span>
+              <span class="material-symbols-outlined text-sm" v-if="activeCategory === cat.id">chevron_right</span>
             </button>
           </div>
 
@@ -362,7 +343,7 @@
           <!-- Contact Info -->
           <div class="lg:col-span-5 space-y-8">
             <div class="flex flex-col items-start">
-              <span class="text-xs font-code-sm text-yellow-600 dark:text-primary tracking-widest uppercase mb-3">04. CONTACT</span>
+              <span class="text-xs font-code-sm text-yellow-600 dark:text-primary tracking-widest uppercase mb-3">05. CONTACT</span>
               <h3 class="font-display-lg text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Let's Collaborate</h3>
               <p class="text-xs font-code-sm text-gray-500 dark:text-on-surface-variant/80 mt-2">Have an exciting project or want to collaborate?</p>
             </div>
@@ -492,16 +473,24 @@ const theme = ref('dark')
 const isHidden = ref(false)
 const onIsHidden = ref(false)
 const sentStatus = ref(false)
-const isMobileMenuOpen = ref(false)
 
 const lastScrollTop = ref(0)
 const onLastScrollTop = ref(0)
 
 const activeCategory = ref('development')
 
-const scrollToSectionMobile = (id) => {
-  isMobileMenuOpen.value = false
-  scrollToSection(id)
+// Experience data from localStorage
+const experiences = ref([])
+
+const loadExperiences = async () => {
+  try {
+    const res = await fetch('/api/experiences')
+    if (res.ok) {
+      experiences.value = await res.json()
+    }
+  } catch {
+    experiences.value = []
+  }
 }
 
 const toggleTheme = () => {
@@ -550,9 +539,8 @@ const submitContact = () => {
 
 const categories = [
   { id: 'development', label: '01. DEVELOPMENT' },
-  { id: 'chatbot', label: '02. CHATBOT BOT' },
-  { id: 'design', label: '03. DESIGN & UI' },
-  { id: 'database', label: '04. DATABASES & INFRA' }
+  { id: 'chatbot', label: '02. CHATBOT' },
+  { id: 'database', label: '03. DATABASE' }
 ]
 
 const techStack = [
@@ -561,60 +549,45 @@ const techStack = [
     category: 'development',
     icon: 'code',
     title: 'Web Development',
-    description: 'Building standard-compliant, beautiful web layouts using modern frontend tools.',
-    tags: ['Vue 3', 'React', 'Tailwind CSS', 'TypeScript']
+    description: 'Building responsive web applications with modern frontend frameworks.',
+    tags: ['Vue.js', 'React', 'JavaScript', 'Tailwind CSS', 'HTML/CSS']
   },
   {
     category: 'development',
     icon: 'dns',
     title: 'APIs & Backend',
-    description: 'Developing RESTful API interfaces and connecting databases using PHP and Node.',
-    tags: ['Node.js', 'PHP', 'Express', 'Laravel']
+    description: 'Developing RESTful API interfaces and backend services.',
+    tags: ['PHP', 'Laravel', 'Node.js', 'REST APIs']
   },
   {
     category: 'development',
     icon: 'settings_suggest',
-    title: 'System Architecture',
-    description: 'Structuring scalable, high-performance web applications with modular codebases.',
-    tags: ['Vite', 'Webpack', 'ESLint', 'Git']
+    title: 'Tools & Version Control',
+    description: 'Managing codebases and ensuring code quality.',
+    tags: ['Git', 'Linux']
   },
   // Chatbot
   {
     category: 'chatbot',
     icon: 'forum',
-    title: 'Chatbot Engineering',
-    description: 'Developing conversational flows, automated agents, and client-side chat widgets.',
-    tags: ['Dialogflow', 'Botika Widget', 'NLP', 'JSON']
+    title: 'Conversational AI',
+    description: 'Building intelligent chatbot systems with AI-powered conversational flows.',
+    tags: ['Conversational AI', 'Chatbot Development']
   },
   {
     category: 'chatbot',
     icon: 'smart_toy',
-    title: 'Automated Dialogue',
-    description: 'Building intelligent workflows that guide users through contextual customer journeys.',
-    tags: ['REST Webhooks', 'API.ai', 'Web Sockets']
+    title: 'Chatbot Integration',
+    description: 'Developing multi-channel chatbot platforms across WhatsApp, Telegram, Web, and Facebook Messenger.',
+    tags: ['Multi-channel', 'JavaScript', 'REST APIs']
   },
-  // Design & UI
-  {
-    category: 'design',
-    icon: 'dashboard',
-    title: 'UI/UX Prototyping',
-    description: 'Structuring sleek layouts, interactive user dashboards, and responsive interfaces.',
-    tags: ['Figma', 'Glassmorphism', 'Corporate Modern']
-  },
-  {
-    category: 'design',
-    icon: 'palette',
-    title: 'Styling & Micro-animations',
-    description: 'Creating harmonic color palettes and hardware-accelerated transitions.',
-    tags: ['PostCSS', 'Vanilla CSS', 'Tailwind config']
-  },
-  // Databases
+  // Database
   {
     category: 'database',
     icon: 'storage',
-    title: 'Relational & NoSQL Databases',
-    description: 'Configuring safe, high-speed database schemas for session storage and user tracking.',
-    tags: ['MySQL', 'PostgreSQL', 'MongoDB', 'Redis']
+    title: 'Database Management',
+    description: 'Designing and optimizing relational databases for web applications.',
+    tags: ['MySQL']
   }
 ]
 
@@ -648,6 +621,7 @@ onMounted(() => {
   } else {
     document.documentElement.classList.remove('dark')
   }
+  loadExperiences()
   logVisit()
   window.addEventListener('scroll', handleScroll)
 })
@@ -672,15 +646,5 @@ onUnmounted(() => {
 }
 .font-code-sm {
   font-family: monospace;
-}
-
-/* Hide scrollbar for Chrome, Safari and Opera */
-.scrollbar-none::-webkit-scrollbar {
-  display: none;
-}
-/* Hide scrollbar for IE, Edge and Firefox */
-.scrollbar-none {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
 }
 </style>

@@ -215,7 +215,251 @@
         <!-- Dashboard Canvas -->
         <section class="p-6 md:p-12 space-y-8 flex-1">
           
-          <!-- Summary Cards -->
+          <!-- Settings (when activeTab === 'settings') -->
+          <div v-if="activeTab === 'settings'">
+            <div class="mb-8">
+              <h3 class="text-2xl font-bold text-gray-800 dark:text-white font-display-lg">Settings</h3>
+              <p class="text-xs text-gray-500 dark:text-on-surface-variant/80 mt-1">Manage your admin credentials</p>
+            </div>
+
+            <div class="max-w-md">
+              <div class="p-6 rounded-xl border"
+                :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200']">
+                <h4 class="text-base font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                  <span class="material-symbols-outlined text-yellow-600 dark:text-primary">lock</span>
+                  Change Password
+                </h4>
+                
+                <form @submit.prevent="changePassword" class="space-y-4">
+                  <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">Current Password</label>
+                    <input 
+                      v-model="passwordChange.current"
+                      type="password" 
+                      required
+                      class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all"
+                      :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']"
+                      placeholder="••••••••"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">New Password</label>
+                    <input 
+                      v-model="passwordChange.newPassword"
+                      type="password" 
+                      required
+                      minlength="6"
+                      class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all"
+                      :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']"
+                      placeholder="••••••••"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">Confirm New Password</label>
+                    <input 
+                      v-model="passwordChange.confirm"
+                      type="password" 
+                      required
+                      class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all"
+                      :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']"
+                      placeholder="••••••••"
+                    />
+                  </div>
+
+                  <div v-if="passwordChange.error" class="text-xs text-red-500 flex items-center gap-1.5 bg-red-500/10 p-3 rounded-lg border border-red-500/20">
+                    <span class="material-symbols-outlined text-sm">error</span>
+                    {{ passwordChange.error }}
+                  </div>
+
+                  <div v-if="passwordChange.success" class="text-xs text-emerald-500 flex items-center gap-1.5 bg-emerald-500/10 p-3 rounded-lg border border-emerald-500/20">
+                    <span class="material-symbols-outlined text-sm">check_circle</span>
+                    Password updated successfully!
+                  </div>
+
+                  <button 
+                    type="submit"
+                    class="w-full py-3 rounded-lg text-sm font-bold transition-all"
+                    :class="[theme === 'dark' ? 'bg-primary text-on-primary hover:opacity-90' : 'bg-yellow-600 text-white hover:bg-yellow-700']"
+                  >
+                    Update Password
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Experience Management (when activeTab === 'experience') -->
+          <div v-if="activeTab === 'experience'">
+            <div class="flex justify-between items-center mb-8">
+              <div>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white font-display-lg">Manage Experience</h3>
+                <p class="text-xs text-gray-500 dark:text-on-surface-variant/80 mt-1">Add, edit, or remove projects from your portfolio</p>
+              </div>
+              <button 
+                @click="openExperienceModal()"
+                class="px-4 py-2 text-xs font-semibold rounded-lg bg-yellow-600 dark:bg-primary text-white dark:text-on-primary hover:opacity-90 transition-all flex items-center gap-2"
+              >
+                <span class="material-symbols-outlined text-sm">add</span>
+                Add Project
+              </button>
+            </div>
+
+            <!-- Experience List -->
+            <div class="space-y-4">
+              <div 
+                v-for="(exp, index) in experiences" 
+                :key="exp.id"
+                class="p-6 rounded-xl border transition-all hover:shadow-md"
+                :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5 hover:border-primary/20' : 'bg-white border-gray-200']"
+              >
+                <div class="flex items-start justify-between">
+                  <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center"
+                      :class="[theme === 'dark' ? 'bg-primary/10 text-primary' : 'bg-yellow-600/10 text-yellow-600']">
+                      <span class="material-symbols-outlined">{{ exp.icon || 'work' }}</span>
+                    </div>
+                    <div>
+                      <h4 class="text-base font-bold text-gray-800 dark:text-white">{{ exp.title }}</h4>
+                      <p class="text-xs text-gray-500 dark:text-on-surface-variant/80 mt-0.5">{{ exp.role }}</p>
+                      <p class="text-xs text-gray-600 dark:text-on-surface-variant/80 mt-2 max-w-xl">{{ exp.description }}</p>
+                      <div class="flex flex-wrap gap-1.5 mt-3">
+                        <span 
+                          v-for="tag in exp.tags" 
+                          :key="tag"
+                          class="text-[9px] font-semibold px-2 py-0.5 rounded"
+                          :class="[theme === 'dark' ? 'bg-white/5 text-on-surface-variant border border-white/5' : 'bg-gray-100 text-gray-600 border border-gray-200/50']"
+                        >
+                          {{ tag }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button 
+                      @click="openExperienceModal(exp, index)"
+                      class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 hover:text-yellow-600 dark:hover:text-primary transition-all"
+                    >
+                      <span class="material-symbols-outlined text-sm">edit</span>
+                    </button>
+                    <button 
+                      @click="deleteExperience(index)"
+                      class="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-500 hover:text-red-500 transition-all"
+                    >
+                      <span class="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div v-if="experiences.length === 0" class="text-center py-12 text-gray-400">
+                <span class="material-symbols-outlined text-4xl mb-4 block">work_off</span>
+                <p class="text-sm">No experience added yet. Click "Add Project" to get started.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Experience Modal -->
+          <div 
+            v-if="showExperienceModal" 
+            class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            @click.self="showExperienceModal = false"
+          >
+            <div class="w-full max-w-lg rounded-2xl border p-6 max-h-[90vh] overflow-y-auto"
+              :class="[theme === 'dark' ? 'bg-surface-container border-white/10' : 'bg-white border-gray-200']">
+              <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white">
+                  {{ editingExperienceIndex >= 0 ? 'Edit Project' : 'Add Project' }}
+                </h3>
+                <button @click="showExperienceModal = false" class="p-1 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg">
+                  <span class="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              <form @submit.prevent="saveExperience" class="space-y-4">
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">Project Title</label>
+                  <input 
+                    v-model="experienceForm.title"
+                    type="text" 
+                    required
+                    class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all"
+                    :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']"
+                    placeholder="e.g. KCM Interior Design"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">Role</label>
+                  <input 
+                    v-model="experienceForm.role"
+                    type="text" 
+                    required
+                    class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all"
+                    :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']"
+                    placeholder="e.g. Full-stack Developer"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">Description</label>
+                  <textarea 
+                    v-model="experienceForm.description"
+                    rows="3"
+                    required
+                    class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all resize-none"
+                    :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']"
+                    placeholder="Brief description of the project..."
+                  ></textarea>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">Icon (Material Symbols)</label>
+                  <input 
+                    v-model="experienceForm.icon"
+                    type="text" 
+                    class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all"
+                    :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']"
+                    placeholder="e.g. business, smart_toy, dashboard"
+                  />
+                  <p class="text-[10px] text-gray-400 mt-1">Leave empty for default icon. Examples: business, smart_toy, dashboard, support_agent</p>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">Tags (comma separated)</label>
+                  <input 
+                    v-model="experienceForm.tagsInput"
+                    type="text" 
+                    required
+                    class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all"
+                    :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']"
+                    placeholder="e.g. Vue.js, Laravel, MySQL"
+                  />
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                  <button 
+                    type="button"
+                    @click="showExperienceModal = false"
+                    class="flex-1 py-3 rounded-lg border text-sm font-semibold transition-all"
+                    :class="[theme === 'dark' ? 'border-white/10 hover:bg-white/5 text-gray-400' : 'border-gray-300 hover:bg-gray-50 text-gray-600']"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    class="flex-1 py-3 rounded-lg text-sm font-bold transition-all"
+                    :class="[theme === 'dark' ? 'bg-primary text-on-primary hover:opacity-90' : 'bg-yellow-600 text-white hover:bg-yellow-700']"
+                  >
+                    {{ editingExperienceIndex >= 0 ? 'Update' : 'Save' }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Summary Cards (Dashboard) -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Card 1 -->
             <div class="p-6 rounded-2xl border relative overflow-hidden group hover:border-yellow-600/40 dark:hover:border-primary/40 transition-colors"
@@ -425,6 +669,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
+const API_BASE = '/api'
+
 const theme = ref('dark')
 const activeTab = ref('dashboard')
 const chartType = ref('daily')
@@ -432,6 +678,7 @@ const mobileSidebarOpen = ref(false)
 
 // Authentication state
 const isAuthenticated = ref(false)
+const authToken = ref(null)
 const username = ref('')
 const password = ref('')
 const loginError = ref('')
@@ -439,13 +686,200 @@ const loginError = ref('')
 // Tabs config
 const tabs = [
   { name: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { name: 'experience', label: 'Experience', icon: 'work' },
   { name: 'analytics', label: 'Analytics', icon: 'monitoring' },
-  { name: 'projects', label: 'Projects', icon: 'folder_special' },
   { name: 'settings', label: 'Settings', icon: 'settings' }
 ]
 
+// Password change state
+const passwordChange = ref({
+  current: '',
+  newPassword: '',
+  confirm: '',
+  error: '',
+  success: false
+})
+
+// Change password handler
+const changePassword = async () => {
+  passwordChange.value.error = ''
+  passwordChange.value.success = false
+  
+  // Validate
+  if (passwordChange.value.newPassword !== passwordChange.value.confirm) {
+    passwordChange.value.error = 'New passwords do not match!'
+    return
+  }
+  
+  if (passwordChange.value.newPassword.length < 6) {
+    passwordChange.value.error = 'Password must be at least 6 characters!'
+    return
+  }
+  
+  try {
+    const response = await fetch(`${API_BASE}/auth/change-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken.value}`
+      },
+      body: JSON.stringify({
+        currentPassword: passwordChange.value.current,
+        newPassword: passwordChange.value.newPassword
+      })
+    })
+    
+    const data = await response.json()
+    
+    if (!response.ok) {
+      passwordChange.value.error = data.error || 'Failed to change password'
+      return
+    }
+    
+    // Reset form
+    passwordChange.value = {
+      current: '',
+      newPassword: '',
+      confirm: '',
+      error: '',
+      success: true
+    }
+    
+    // Clear success message after 3 seconds
+    setTimeout(() => {
+      passwordChange.value.success = false
+    }, 3000)
+  } catch (error) {
+    passwordChange.value.error = 'Network error. Please try again.'
+  }
+}
+
+// Authentication operations
+const handleLogin = async () => {
+  loginError.value = ''
+  
+  try {
+    const response = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        username: username.value, 
+        password: password.value 
+      })
+    })
+    
+    const data = await response.json()
+    
+    if (!response.ok) {
+      loginError.value = data.error || 'Invalid credentials!'
+      return
+    }
+    
+    // Store token in sessionStorage (cleared on tab close)
+    authToken.value = data.token
+    isAuthenticated.value = true
+    sessionStorage.setItem('admin_token', data.token)
+  } catch (error) {
+    loginError.value = 'Network error. Please try again.'
+  }
+}
+
 // Log database
 const logs = ref([])
+
+// Experience management
+const experiences = ref([])
+const showExperienceModal = ref(false)
+const editingExperienceIndex = ref(-1)
+const experienceForm = ref({
+  title: '',
+  role: '',
+  description: '',
+  icon: '',
+  tagsInput: ''
+})
+
+// Load experiences from API
+const loadExperiences = async () => {
+  try {
+    const res = await fetch(`${API_BASE}/experiences`)
+    if (res.ok) {
+      experiences.value = await res.json()
+    }
+  } catch {
+    experiences.value = []
+  }
+}
+
+// Save experiences to API
+const saveExperiences = async () => {
+  try {
+    await fetch(`${API_BASE}/experiences`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken.value}`
+      },
+      body: JSON.stringify({ experiences: experiences.value })
+    })
+  } catch {
+    console.error('Failed to save experiences')
+  }
+}
+
+// Open experience modal
+const openExperienceModal = (exp = null, index = -1) => {
+  if (exp) {
+    editingExperienceIndex.value = index
+    experienceForm.value = {
+      title: exp.title,
+      role: exp.role,
+      description: exp.description,
+      icon: exp.icon || '',
+      tagsInput: exp.tags.join(', ')
+    }
+  } else {
+    editingExperienceIndex.value = -1
+    experienceForm.value = {
+      title: '',
+      role: '',
+      description: '',
+      icon: '',
+      tagsInput: ''
+    }
+  }
+  showExperienceModal.value = true
+}
+
+// Save experience
+const saveExperience = () => {
+  const newExp = {
+    id: Date.now(),
+    title: experienceForm.value.title,
+    role: experienceForm.value.role,
+    description: experienceForm.value.description,
+    icon: experienceForm.value.icon || 'work',
+    tags: experienceForm.value.tagsInput.split(',').map(t => t.trim()).filter(t => t)
+  }
+
+  if (editingExperienceIndex.value >= 0) {
+    newExp.id = experiences.value[editingExperienceIndex.value].id
+    experiences.value[editingExperienceIndex.value] = newExp
+  } else {
+    experiences.value.push(newExp)
+  }
+
+  saveExperiences()
+  showExperienceModal.value = false
+}
+
+// Delete experience
+const deleteExperience = (index) => {
+  if (confirm('Are you sure you want to delete this project?')) {
+    experiences.value.splice(index, 1)
+    saveExperiences()
+  }
+}
 
 // Today's visitors count logic (logs that occurred today)
 const todayVisitorsCount = computed(() => {
@@ -532,19 +966,10 @@ const chartAreaPath = computed(() => {
   return d
 })
 
-// Authentication operations
-const handleLogin = () => {
-  if (username.value === 'admin' && password.value === 'admin') {
-    isAuthenticated.value = true
-    localStorage.setItem('admin_session', 'authenticated')
-    loginError.value = ''
-  } else {
-    loginError.value = 'Invalid admin credentials!'
-  }
-}
 
 const handleLogout = () => {
   isAuthenticated.value = false
+  authToken.value = null
   localStorage.removeItem('admin_session')
 }
 
@@ -588,9 +1013,10 @@ const toggleTheme = () => {
 
 // Initial configuration loading
 onMounted(() => {
-  // Check auth state
-  const session = localStorage.getItem('admin_session')
-  if (session === 'authenticated') {
+  // Check auth state from sessionStorage
+  const savedToken = sessionStorage.getItem('admin_token')
+  if (savedToken) {
+    authToken.value = savedToken
     isAuthenticated.value = true
   }
 
@@ -598,9 +1024,10 @@ onMounted(() => {
   theme.value = localStorage.getItem('theme') || 'dark'
   if (theme.value === 'dark') {
     document.documentElement.classList.add('dark')
-  } else {
-    document.documentElement.classList.remove('dark')
   }
+
+  // Load experiences
+  loadExperiences()
 
   // Load existing logs or inject initial data
   const storedLogs = localStorage.getItem('visitor_logs')
@@ -616,8 +1043,8 @@ onMounted(() => {
     localStorage.setItem('visitor_logs', JSON.stringify(logs.value))
   }
 })
-</script>
 
+</script>
 <style>
 /* Same typography class mapping */
 .font-display-lg {
