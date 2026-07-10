@@ -206,20 +206,31 @@
               </div>
             </div>
 
-            <!-- Current Role Card -->
-            <div class="p-6 rounded-xl border flex items-center justify-between transition-all duration-300"
+            <!-- Current Role Card - LinkedIn Style -->
+            <div class="p-6 rounded-xl border flex items-start gap-4 transition-all duration-300"
               :class="[
                 theme === 'dark' 
                   ? 'bg-gradient-to-r from-[#161b25] to-[#1e2535] border-primary/20 shadow-[0_0_15px_rgba(246,190,57,0.05)]' 
                   : 'bg-yellow-50 border-yellow-600/20'
               ]"
             >
-              <div>
-                <span class="text-[10px] font-code-sm uppercase tracking-widest text-yellow-600 dark:text-primary mb-1 block">Selected Role</span>
-                <h4 class="text-lg font-bold text-gray-800 dark:text-white">Full-stack Developer at Botika</h4>
-                <p class="text-xs text-gray-500 dark:text-on-surface-variant/80 mt-1">Maintaining chatbot AI systems & building custom dashboards.</p>
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                :class="[theme === 'dark' ? 'bg-primary/10' : 'bg-yellow-600/10']"
+              >
+                <span class="material-symbols-outlined text-lg text-yellow-600 dark:text-primary">work</span>
               </div>
-              <span class="material-symbols-outlined text-4xl text-yellow-600 dark:text-primary opacity-60">architecture</span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] font-code-sm text-gray-400 dark:text-on-surface-variant/60 uppercase tracking-wider">Full-time</span>
+                  <span class="text-[10px] font-code-sm text-gray-400 dark:text-on-surface-variant/60">4+ yrs</span>
+                </div>
+                <h4 class="text-sm font-bold text-gray-800 dark:text-white">Full-stack Developer</h4>
+                <p class="text-xs text-yellow-600 dark:text-primary font-semibold">Botika</p>
+                <p class="text-[10px] text-gray-400 dark:text-on-surface-variant/60 mt-1 mb-2">Full-time · Remote</p>
+                <p class="text-xs text-gray-600 dark:text-on-surface-variant/80 leading-relaxed">
+                  Maintaining chatbot AI systems with JavaScript-based agentic architecture. Building custom dashboards for monitoring & analytics. Developing web applications with Vue.js and PHP Laravel.
+                </p>
+              </div>
             </div>
           </div>
 
