@@ -495,6 +495,16 @@ app.patch('/api/contact-messages/:id/read', authMiddleware, async (req, res) => 
   }
 })
 
+app.delete('/api/contact-messages/:id', authMiddleware, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM contact_messages WHERE id = ?', [req.params.id])
+    res.json({ success: true })
+  } catch (error) {
+    console.error('Delete message error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // === Health check ===
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })

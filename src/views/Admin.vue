@@ -507,7 +507,10 @@
                     <span class="material-symbols-outlined text-xs">phone</span> {{ msg.phone }}
                   </div>
                   <div v-else></div>
-                  <button v-if="!msg.is_read" @click="markAsRead(msg.id)" class="text-[10px] text-yellow-600 dark:text-primary hover:underline">Mark as read</button>
+                  <div class="flex items-center gap-3">
+                    <button v-if="!msg.is_read" @click="markAsRead(msg.id)" class="text-[10px] text-yellow-600 dark:text-primary hover:underline">Mark as read</button>
+                    <button @click="deleteMessage(msg.id)" class="text-[10px] text-red-400 hover:text-red-500 hover:underline">Delete</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1193,6 +1196,17 @@ const markAsRead = async (id) => {
   try {
     await fetch(`${API_BASE}/contact-messages/${id}/read`, {
       method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${authToken.value}` }
+    })
+    await loadMessages()
+  } catch {}
+}
+
+const deleteMessage = async (id) => {
+  if (!confirm('Delete this message?')) return
+  try {
+    await fetch(`${API_BASE}/contact-messages/${id}`, {
+      method: 'DELETE',
       headers: { 'Authorization': `Bearer ${authToken.value}` }
     })
     await loadMessages()
