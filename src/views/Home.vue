@@ -182,7 +182,7 @@
             </div>
 
             <p class="text-sm md:text-base text-gray-600 dark:text-on-surface-variant text-justify leading-relaxed">
-              I am a Computer Science graduate, class of 2022, with 4+ years of experience at Botika specializing in web application development and conversational AI systems. For nearly 4 years as a Chatbot AI Developer, I built, maintained, and customized chatbot platforms for enterprise clients — from designing conversation flows to managing production deployments and creating custom dashboards for monitoring and analytics. In my current role as Full-stack Developer, I continue maintaining chatbot AI systems built with JavaScript-based agentic architecture, while developing web applications with Vue.js and PHP Laravel backends.
+              I am a Computer Science graduate, class of 2022, with 4+ years of experience at Botika specializing in web application development and conversational AI systems. For nearly 4 years as a Chatbot AI Developer, I built, maintained, and customized chatbot platforms for enterprise clients from designing conversation flows to managing production deployments and creating custom dashboards for monitoring and analytics. In my current role as Full-stack Developer, I continue maintaining chatbot AI systems built with JavaScript-based agentic architecture, while developing web applications with Vue.js and PHP Laravel backends.
             </p>
           </div>
 
@@ -371,7 +371,7 @@
                 </div>
                 <div>
                   <span class="text-[9px] font-code-sm text-gray-500 uppercase tracking-wider">Phone Number</span>
-                  <p class="text-sm font-semibold text-gray-800 dark:text-white">+628****2710</p>
+                  <p class="text-sm font-semibold text-gray-800 dark:text-white">+6281329012710</p>
                 </div>
               </div>
 
