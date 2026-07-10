@@ -196,24 +196,26 @@
           <!-- Right side: Stats -->
           <div class="lg:col-span-5 flex flex-col justify-center space-y-4">
             <!-- Stat Card 1 -->
-            <div class="p-6 rounded-xl border flex items-center gap-5 transition-all duration-300"
-              :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5' : 'bg-gray-50 border-gray-200']"
+            <div class="p-6 rounded-xl border flex items-start gap-4 transition-all duration-300"
+              :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5 hover:border-primary/20' : 'bg-gray-50 border-gray-200']"
             >
-              <span class="text-4xl md:text-5xl font-bold font-display-lg text-yellow-600 dark:text-primary leading-none">4+</span>
+              <span class="material-symbols-outlined text-2xl text-yellow-600 dark:text-primary mt-1">work_history</span>
               <div>
-                <p class="text-xs font-semibold text-gray-800 dark:text-white">Years Experience</p>
-                <p class="text-[10px] text-gray-400 dark:text-on-surface-variant/60 mt-0.5">Professional career</p>
+                <h4 class="text-xs font-code-sm text-gray-500 uppercase tracking-wider mb-1">Experience</h4>
+                <p class="text-sm font-semibold text-gray-800 dark:text-white">4+ Years</p>
+                <p class="text-xs text-gray-500 dark:text-on-surface-variant/80">Professional career</p>
               </div>
             </div>
 
             <!-- Stat Card 2 -->
-            <div class="p-6 rounded-xl border flex items-center gap-5 transition-all duration-300"
-              :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5' : 'bg-gray-50 border-gray-200']"
+            <div class="p-6 rounded-xl border flex items-start gap-4 transition-all duration-300"
+              :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5 hover:border-primary/20' : 'bg-gray-50 border-gray-200']"
             >
-              <span class="text-4xl md:text-5xl font-bold font-display-lg text-yellow-600 dark:text-primary leading-none">15+</span>
+              <span class="material-symbols-outlined text-2xl text-yellow-600 dark:text-primary mt-1">checklist</span>
               <div>
-                <p class="text-xs font-semibold text-gray-800 dark:text-white">Projects Completed</p>
-                <p class="text-[10px] text-gray-400 dark:text-on-surface-variant/60 mt-0.5">Enterprise chatbots & web apps</p>
+                <h4 class="text-xs font-code-sm text-gray-500 uppercase tracking-wider mb-1">Projects</h4>
+                <p class="text-sm font-semibold text-gray-800 dark:text-white">15+ Completed</p>
+                <p class="text-xs text-gray-500 dark:text-on-surface-variant/80">Enterprise chatbots & web apps</p>
               </div>
             </div>
           </div>
