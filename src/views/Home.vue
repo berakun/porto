@@ -149,78 +149,71 @@
     <!-- About Me Section -->
     <section id="about" class="py-28 border-t relative z-10 px-6 md:px-12 dark:bg-[#0b0f17] border-gray-150 dark:border-white/5">
       <div class="container mx-auto">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
-          <!-- Left side: text and cards -->
-          <div class="lg:col-span-7 space-y-8">
-            <div class="flex flex-col items-start">
-              <span class="text-xs font-code-sm text-yellow-600 dark:text-primary tracking-widest uppercase mb-3">02. BACKGROUND</span>
-              <h3 class="font-display-lg text-3xl md:text-4xl font-bold text-gray-900 dark:text-white relative pb-3">
-                About Me
-                <span class="absolute bottom-0 left-0 w-12 h-1 bg-yellow-600 dark:bg-primary"></span>
-              </h3>
-            </div>
-
-            <!-- Education and Location quick grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Card 1 -->
-              <div class="p-6 rounded-xl border flex items-start gap-4 transition-all duration-300"
-                :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5 hover:border-primary/20' : 'bg-gray-50 border-gray-200']"
-              >
-                <span class="material-symbols-outlined text-2xl text-yellow-600 dark:text-primary mt-1">school</span>
-                <div>
-                  <h4 class="text-xs font-code-sm text-gray-500 uppercase tracking-wider mb-1">Education</h4>
-                  <p class="text-sm font-semibold text-gray-800 dark:text-white">Computer Science Grad</p>
-                  <p class="text-xs text-gray-500 dark:text-on-surface-variant/80">Class of 2022</p>
-                </div>
-              </div>
-              
-              <!-- Card 2 -->
-              <div class="p-6 rounded-xl border flex items-start gap-4 transition-all duration-300"
-                :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5 hover:border-primary/20' : 'bg-gray-50 border-gray-200']"
-              >
-                <span class="material-symbols-outlined text-2xl text-yellow-600 dark:text-primary mt-1">distance</span>
-                <div>
-                  <h4 class="text-xs font-code-sm text-gray-500 uppercase tracking-wider mb-1">Location</h4>
-                  <p class="text-sm font-semibold text-gray-800 dark:text-white">Yogyakarta, Indonesia</p>
-                  <p class="text-xs text-gray-500 dark:text-on-surface-variant/80">Tech Center</p>
-                </div>
-              </div>
-            </div>
-
-            <p class="text-sm md:text-base text-gray-600 dark:text-on-surface-variant text-justify leading-relaxed">
-              I am a Computer Science graduate, class of 2022, with 4+ years of experience at Botika specializing in web application development and conversational AI systems. For nearly 4 years as a Chatbot AI Developer, I built, maintained, and customized chatbot platforms for enterprise clients from designing conversation flows to managing production deployments and creating custom dashboards for monitoring and analytics. In my current role as Full-stack Developer, I continue maintaining chatbot AI systems built with JavaScript-based agentic architecture, while developing web applications with Vue.js and PHP Laravel backends.
-            </p>
-          </div>
-
-          <!-- Right side: Stats -->
-          <div class="lg:col-span-5 flex flex-col justify-center space-y-4">
-            <!-- Stat Card 1 -->
-            <div class="p-6 rounded-xl border flex items-start gap-4 transition-all duration-300"
-              :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5 hover:border-primary/20' : 'bg-gray-50 border-gray-200']"
-            >
-              <span class="material-symbols-outlined text-2xl text-yellow-600 dark:text-primary mt-1">work_history</span>
-              <div>
-                <h4 class="text-xs font-code-sm text-gray-500 uppercase tracking-wider mb-1">Experience</h4>
-                <p class="text-sm font-semibold text-gray-800 dark:text-white">4+ Years</p>
-                <p class="text-xs text-gray-500 dark:text-on-surface-variant/80">Professional career</p>
-              </div>
-            </div>
-
-            <!-- Stat Card 2 -->
-            <div class="p-6 rounded-xl border flex items-start gap-4 transition-all duration-300"
-              :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5 hover:border-primary/20' : 'bg-gray-50 border-gray-200']"
-            >
-              <span class="material-symbols-outlined text-2xl text-yellow-600 dark:text-primary mt-1">checklist</span>
-              <div>
-                <h4 class="text-xs font-code-sm text-gray-500 uppercase tracking-wider mb-1">Projects</h4>
-                <p class="text-sm font-semibold text-gray-800 dark:text-white">15+ Completed</p>
-                <p class="text-xs text-gray-500 dark:text-on-surface-variant/80">Enterprise chatbots & web apps</p>
-              </div>
-            </div>
-          </div>
-
+        <!-- Title -->
+        <div class="flex flex-col items-start mb-8">
+          <span class="text-xs font-code-sm text-yellow-600 dark:text-primary tracking-widest uppercase mb-3">02. BACKGROUND</span>
+          <h3 class="font-display-lg text-3xl md:text-4xl font-bold text-gray-900 dark:text-white relative pb-3">
+            About Me
+            <span class="absolute bottom-0 left-0 w-12 h-1 bg-yellow-600 dark:bg-primary"></span>
+          </h3>
         </div>
+
+        <!-- Bio -->
+        <p class="text-sm md:text-base text-gray-600 dark:text-on-surface-variant text-justify leading-relaxed mb-8">
+          I am a Computer Science graduate, class of 2022, with 4+ years of experience at Botika specializing in web application development and conversational AI systems. For nearly 4 years as a Chatbot AI Developer, I built, maintained, and customized chatbot platforms for enterprise clients from designing conversation flows to managing production deployments and creating custom dashboards for monitoring and analytics. In my current role as Full-stack Developer, I continue maintaining chatbot AI systems built with JavaScript-based agentic architecture, while developing web applications with Vue.js and PHP Laravel backends.
+        </p>
+
+        <!-- 4 Info Cards — equal height -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Education -->
+          <div class="p-6 rounded-xl border flex items-start gap-4 transition-all duration-300"
+            :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5 hover:border-primary/20' : 'bg-gray-50 border-gray-200']"
+          >
+            <span class="material-symbols-outlined text-2xl text-yellow-600 dark:text-primary mt-1">school</span>
+            <div>
+              <h4 class="text-xs font-code-sm text-gray-500 uppercase tracking-wider mb-1">Education</h4>
+              <p class="text-sm font-semibold text-gray-800 dark:text-white">Computer Science Grad</p>
+              <p class="text-xs text-gray-500 dark:text-on-surface-variant/80">Class of 2022</p>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="p-6 rounded-xl border flex items-start gap-4 transition-all duration-300"
+            :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5 hover:border-primary/20' : 'bg-gray-50 border-gray-200']"
+          >
+            <span class="material-symbols-outlined text-2xl text-yellow-600 dark:text-primary mt-1">distance</span>
+            <div>
+              <h4 class="text-xs font-code-sm text-gray-500 uppercase tracking-wider mb-1">Location</h4>
+              <p class="text-sm font-semibold text-gray-800 dark:text-white">Yogyakarta, Indonesia</p>
+              <p class="text-xs text-gray-500 dark:text-on-surface-variant/80">Tech Center</p>
+            </div>
+          </div>
+
+          <!-- Experience -->
+          <div class="p-6 rounded-xl border flex items-start gap-4 transition-all duration-300"
+            :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5 hover:border-primary/20' : 'bg-gray-50 border-gray-200']"
+          >
+            <span class="material-symbols-outlined text-2xl text-yellow-600 dark:text-primary mt-1">work_history</span>
+            <div>
+              <h4 class="text-xs font-code-sm text-gray-500 uppercase tracking-wider mb-1">Experience</h4>
+              <p class="text-sm font-semibold text-gray-800 dark:text-white">4+ Years</p>
+              <p class="text-xs text-gray-500 dark:text-on-surface-variant/80">Professional career</p>
+            </div>
+          </div>
+
+          <!-- Projects -->
+          <div class="p-6 rounded-xl border flex items-start gap-4 transition-all duration-300"
+            :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5 hover:border-primary/20' : 'bg-gray-50 border-gray-200']"
+          >
+            <span class="material-symbols-outlined text-2xl text-yellow-600 dark:text-primary mt-1">checklist</span>
+            <div>
+              <h4 class="text-xs font-code-sm text-gray-500 uppercase tracking-wider mb-1">Projects</h4>
+              <p class="text-sm font-semibold text-gray-800 dark:text-white">15+ Completed</p>
+              <p class="text-xs text-gray-500 dark:text-on-surface-variant/80">Enterprise chatbots & web apps</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
