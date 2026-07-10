@@ -559,23 +559,17 @@ const activeCategoryItems = computed(() => {
   return expertiseItems.value.filter(item => item.category === activeCategory.value)
 })
 
-const logVisit = () => {
-  const currentLogs = JSON.parse(localStorage.getItem('visitor_logs') || '[]')
-  
-  const newLog = {
-    id: Date.now(),
-    ip: '180.252.' + Math.floor(Math.random() * 255) + '.' + Math.floor(Math.random() * 255),
-    browser_os: navigator.userAgent.indexOf('Windows') !== -1 ? 'Chrome / Windows' : 
-                navigator.userAgent.indexOf('Mac') !== -1 ? 'Safari / macOS' : 
-                navigator.userAgent.indexOf('iPhone') !== -1 ? 'Safari / iOS' : 'Firefox / Linux',
-    referrer: document.referrer || 'Direct Access',
-    landing_page: window.location.pathname,
-    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-    country: 'IDN'
-  }
-  
-  currentLogs.unshift(newLog)
-  localStorage.setItem('visitor_logs', JSON.stringify(currentLogs.slice(0, 50)))
+const logVisit = async () => {
+  try {
+    await fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        page: window.location.pathname,
+        referrer: document.referrer || ''
+      })
+    })
+  } catch { /* silent */ }
 }
 
 onMounted(() => {

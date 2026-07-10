@@ -215,6 +215,176 @@
         <!-- Dashboard Canvas -->
         <section class="p-6 md:p-12 space-y-8 flex-1">
           
+          <!-- Dashboard (Real Analytics) -->
+          <div v-if="activeTab === 'dashboard'" class="space-y-8">
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="p-6 rounded-2xl border relative overflow-hidden group hover:border-yellow-600/40 dark:hover:border-primary/40 transition-colors"
+                :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']">
+                <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <span class="material-symbols-outlined text-8xl text-yellow-600 dark:text-primary">group</span>
+                </div>
+                <p class="font-label-md text-xs mb-2 text-gray-500 dark:text-on-surface-variant">Today's Unique Visitors</p>
+                <h3 class="text-headline-lg-mobile md:text-headline-md font-bold text-yellow-600 dark:text-primary">{{ analyticsData.todayVisitors || 0 }}</h3>
+              </div>
+              <div class="p-6 rounded-2xl border relative overflow-hidden group hover:border-yellow-600/40 dark:hover:border-primary/40 transition-colors"
+                :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']">
+                <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <span class="material-symbols-outlined text-8xl text-yellow-600 dark:text-primary">public</span>
+                </div>
+                <p class="font-label-md text-xs mb-2 text-gray-500 dark:text-on-surface-variant">Total Page Views</p>
+                <h3 class="text-headline-lg-mobile md:text-headline-md font-bold text-yellow-600 dark:text-primary">{{ analyticsData.totalVisits || 0 }}</h3>
+              </div>
+              <div class="p-6 rounded-2xl border relative overflow-hidden group hover:border-yellow-600/40 dark:hover:border-primary/40 transition-colors"
+                :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']">
+                <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <span class="material-symbols-outlined text-8xl text-yellow-600 dark:text-primary">location_on</span>
+                </div>
+                <p class="font-label-md text-xs mb-2 text-gray-500 dark:text-on-surface-variant">Unique Visitors</p>
+                <h3 class="text-headline-lg-mobile md:text-headline-md font-bold text-yellow-600 dark:text-primary">{{ analyticsData.uniqueVisitors || 0 }}</h3>
+              </div>
+            </div>
+
+            <!-- Country Breakdown + Browser/OS -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- Country Map List -->
+              <div class="p-6 rounded-2xl border transition-colors"
+                :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']">
+                <h4 class="text-base font-bold text-gray-800 dark:text-white font-display-lg mb-4 flex items-center gap-2">
+                  <span class="material-symbols-outlined text-yellow-600 dark:text-primary text-lg">globe_asia</span>
+                  Visitors by Country
+                </h4>
+                <div class="space-y-3 max-h-[320px] overflow-y-auto">
+                  <div v-if="!analyticsData.countries?.length" class="text-center py-8 text-gray-400 text-xs">No data yet</div>
+                  <div v-for="c in analyticsData.countries" :key="c.country" class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <span class="text-lg">{{ countryFlag(c.country) }}</span>
+                      <div>
+                        <span class="text-sm font-semibold text-gray-800 dark:text-white">{{ c.country }}</span>
+                        <span class="text-[10px] text-gray-400 ml-2">{{ c.unique_visitors }} visitors</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <div class="w-20 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-yellow-600 dark:bg-primary rounded-full transition-all" :style="{ width: barWidth(c.visits, analyticsData.countries[0]?.visits) + '%' }"></div>
+                      </div>
+                      <span class="text-xs font-bold text-yellow-600 dark:text-primary w-10 text-right">{{ c.visits }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Browser + OS -->
+              <div class="space-y-6">
+                <div class="p-6 rounded-2xl border transition-colors"
+                  :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']">
+                  <h4 class="text-base font-bold text-gray-800 dark:text-white font-display-lg mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-yellow-600 dark:text-primary text-lg">language</span>
+                    Browsers
+                  </h4>
+                  <div class="space-y-2">
+                    <div v-if="!analyticsData.browsers?.length" class="text-center py-4 text-gray-400 text-xs">No data</div>
+                    <div v-for="b in analyticsData.browsers" :key="b.browser" class="flex items-center justify-between">
+                      <span class="text-sm text-gray-700 dark:text-on-surface-variant">{{ b.browser }}</span>
+                      <div class="flex items-center gap-2">
+                        <div class="w-16 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                          <div class="h-full bg-yellow-600 dark:bg-primary rounded-full" :style="{ width: barWidth(b.count, analyticsData.browsers[0]?.count) + '%' }"></div>
+                        </div>
+                        <span class="text-xs font-bold text-yellow-600 dark:text-primary w-8 text-right">{{ b.count }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="p-6 rounded-2xl border transition-colors"
+                  :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']">
+                  <h4 class="text-base font-bold text-gray-800 dark:text-white font-display-lg mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-yellow-600 dark:text-primary text-lg">devices</span>
+                    Operating Systems
+                  </h4>
+                  <div class="space-y-2">
+                    <div v-if="!analyticsData.operatingSystems?.length" class="text-center py-4 text-gray-400 text-xs">No data</div>
+                    <div v-for="o in analyticsData.operatingSystems" :key="o.os" class="flex items-center justify-between">
+                      <span class="text-sm text-gray-700 dark:text-on-surface-variant">{{ o.os }}</span>
+                      <div class="flex items-center gap-2">
+                        <div class="w-16 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                          <div class="h-full bg-yellow-600 dark:bg-primary rounded-full" :style="{ width: barWidth(o.count, analyticsData.operatingSystems[0]?.count) + '%' }"></div>
+                        </div>
+                        <span class="text-xs font-bold text-yellow-600 dark:text-primary w-8 text-right">{{ o.count }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Top Referrers -->
+            <div class="p-6 rounded-2xl border transition-colors"
+              :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']">
+              <h4 class="text-base font-bold text-gray-800 dark:text-white font-display-lg mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-yellow-600 dark:text-primary text-lg">link</span>
+                Top Referrers
+              </h4>
+              <div v-if="!analyticsData.referrers?.length" class="text-center py-6 text-gray-400 text-xs">No referrer data yet</div>
+              <div class="flex flex-wrap gap-3">
+                <div v-for="r in analyticsData.referrers" :key="r.referrer" 
+                  class="px-4 py-2 rounded-lg border text-sm flex items-center gap-2"
+                  :class="[theme === 'dark' ? 'bg-background border-white/5' : 'bg-gray-50 border-gray-200']">
+                  <span class="font-semibold text-gray-800 dark:text-white">{{ r.referrer }}</span>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-yellow-600/10 dark:bg-primary/10 text-yellow-600 dark:text-primary font-bold">{{ r.count }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Visitors Table -->
+            <div class="rounded-2xl border overflow-hidden transition-colors"
+              :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']">
+              <div class="p-6 border-b flex justify-between items-center" :class="[theme === 'dark' ? 'border-white/10' : 'border-gray-200']">
+                <div>
+                  <h4 class="text-base font-bold text-gray-800 dark:text-white font-display-lg">Recent Visitors</h4>
+                  <p class="text-xs text-gray-500 dark:text-on-surface-variant/80 mt-0.5">Last 50 page views from real visitors</p>
+                </div>
+                <button @click="loadAnalytics" class="px-3 py-1.5 text-xs font-semibold rounded border border-yellow-600/30 text-yellow-600 dark:border-primary/30 dark:text-primary hover:bg-yellow-600/5 dark:hover:bg-primary/5 transition-all flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">refresh</span>
+                  Refresh
+                </button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                  <thead class="text-[10px] uppercase tracking-wider font-semibold text-gray-400" :class="[theme === 'dark' ? 'bg-white/5' : 'bg-gray-50']">
+                    <tr>
+                      <th class="px-6 py-4">IP</th>
+                      <th class="px-6 py-4">Country</th>
+                      <th class="px-6 py-4">City</th>
+                      <th class="px-6 py-4">ISP</th>
+                      <th class="px-6 py-4">Browser</th>
+                      <th class="px-6 py-4">OS</th>
+                      <th class="px-6 py-4">Referrer</th>
+                      <th class="px-6 py-4 text-right">Time</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y text-xs text-gray-600 dark:text-on-surface-variant/90" :class="[theme === 'dark' ? 'divide-white/5' : 'divide-gray-150']">
+                    <tr v-if="!analyticsData.recent?.length">
+                      <td colspan="8" class="px-6 py-8 text-center text-gray-400">No visitors yet. Share your portfolio link!</td>
+                    </tr>
+                    <tr v-for="v in analyticsData.recent" :key="v.id" class="hover:bg-yellow-600/5 dark:hover:bg-primary/5 transition-colors">
+                      <td class="px-6 py-4 font-code-sm font-semibold whitespace-nowrap">{{ v.ip }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="mr-1.5">{{ countryFlag(v.country) }}</span>{{ v.country }}
+                      </td>
+                      <td class="px-6 py-4">{{ v.city || '—' }}</td>
+                      <td class="px-6 py-4 text-[10px] max-w-[120px] truncate" :title="v.isp">{{ v.isp || '—' }}</td>
+                      <td class="px-6 py-4">{{ v.browser }}</td>
+                      <td class="px-6 py-4">{{ v.os }}</td>
+                      <td class="px-6 py-4 max-w-[120px] truncate" :title="v.referrer">{{ v.referrer || 'Direct' }}</td>
+                      <td class="px-6 py-4 text-right text-gray-400 whitespace-nowrap">{{ formatTime(v.created_at) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
           <!-- Settings (when activeTab === 'settings') -->
           <div v-if="activeTab === 'settings'">
             <div class="mb-8">
@@ -816,6 +986,47 @@ const handleLogin = async () => {
   }
 }
 
+// === Real Analytics ===
+const analyticsData = ref({})
+
+const loadAnalytics = async () => {
+  try {
+    const res = await fetch(`${API_BASE}/analytics`, {
+      headers: { 'Authorization': `Bearer ${authToken.value}` }
+    })
+    if (res.ok) {
+      analyticsData.value = await res.json()
+    }
+  } catch {
+    analyticsData.value = {}
+  }
+}
+
+// Country name → flag emoji
+const countryFlag = (name) => {
+  const map = {
+    'Indonesia': '🇮🇩', 'Malaysia': '🇲🇾', 'Singapore': '🇸🇬', 'Thailand': '🇹🇭',
+    'Philippines': '🇵🇭', 'Vietnam': '🇻🇳', 'Japan': '🇯🇵', 'South Korea': '🇰🇷',
+    'China': '🇨🇳', 'India': '🇮🇳', 'United States': '🇺🇸', 'United Kingdom': '🇬🇧',
+    'Germany': '🇩🇪', 'France': '🇫🇷', 'Australia': '🇦🇺', 'Brazil': '🇧🇷',
+    'Canada': '🇨🇦', 'Netherlands': '🇳🇱', 'Taiwan': '🇹🇼', 'Hong Kong': '🇭🇰',
+    'Russia': '🇷🇺', 'Turkey': '🇹🇷', 'Saudi Arabia': '🇸🇦', 'UAE': '🇦🇪',
+    'Local': '🏠', 'Unknown': '🌐'
+  }
+  return map[name] || '🌍'
+}
+
+const barWidth = (val, max) => {
+  if (!max || max === 0) return 0
+  return Math.round((val / max) * 100)
+}
+
+const formatTime = (ts) => {
+  if (!ts) return ''
+  const d = new Date(ts)
+  return d.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
+
 // Log database (kept for dashboard tab)
 const logs = ref([])
 
@@ -1175,6 +1386,9 @@ onMounted(() => {
 
   // Load expertise
   loadExpertise()
+
+  // Load analytics
+  loadAnalytics()
 
   // Load existing logs or inject initial data
   const storedLogs = localStorage.getItem('visitor_logs')
