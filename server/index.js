@@ -397,6 +397,43 @@ app.get('/api/analytics', authMiddleware, async (req, res) => {
   }
 })
 
+// === Contact Messages ===
+app.post('/api/contact', async (req, res) => {
+  try {
+    const { name, phone, project_type, message } = req.body
+    if (!name || !project_type || !message) {
+      return res.status(400).json({ error: 'Name, project type, and message are required' })
+    }
+    await pool.query(
+      'INSERT INTO contact_messages (name, phone, project_type, message) VALUES (?, ?, ?, ?)',
+      [name, phone || '', project_type, message]
+    )
+    res.json({ success: true, message: 'Message sent successfully' })
+  } catch (error) {
+    console.error('Contact message error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.get('/api/contact-messages', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM contact_messages ORDER BY created_at DESC')
+    res.json(rows)
+  } catch (error) {
+    console.error('Fetch messages error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.patch('/api/contact-messages/:id/read', authMiddleware, async (req, res) => {
+  try {
+    await pool.query('UPDATE contact_messages SET is_read = TRUE WHERE id = ?', [req.params.id])
+    res.json({ success: true })
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // === Health check ===
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })

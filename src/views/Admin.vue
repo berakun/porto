@@ -460,6 +460,59 @@
             </div>
           </div>
 
+          <!-- Contact Messages (when activeTab === 'messages') -->
+          <div v-if="activeTab === 'messages'">
+            <div class="flex justify-between items-center mb-8">
+              <div>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white font-display-lg">Contact Messages</h3>
+                <p class="text-xs text-gray-500 dark:text-on-surface-variant/80 mt-1">Messages from portfolio visitors</p>
+              </div>
+              <button @click="loadMessages()" class="px-3 py-2 text-xs font-semibold rounded-lg border border-gray-300 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/5 transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">refresh</span> Refresh
+              </button>
+            </div>
+
+            <div v-if="contactMessages.length === 0" class="text-center py-12 text-gray-400">
+              <span class="material-symbols-outlined text-5xl mb-3 block">inbox</span>
+              <p class="text-sm">No messages yet</p>
+            </div>
+
+            <div class="space-y-4">
+              <div v-for="msg in contactMessages" :key="msg.id" 
+                class="p-6 rounded-2xl border transition-all"
+                :class="[
+                  msg.is_read 
+                    ? (theme === 'dark' ? 'bg-surface-container/50 border-white/5' : 'bg-white border-gray-200')
+                    : (theme === 'dark' ? 'bg-surface-container/70 border-primary/20 shadow-[0_0_10px_rgba(246,190,57,0.05)]' : 'bg-yellow-50 border-yellow-600/20')
+                ]">
+                <div class="flex items-start justify-between mb-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center bg-yellow-600/10 dark:bg-primary/10">
+                      <span class="material-symbols-outlined text-lg text-yellow-600 dark:text-primary">person</span>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-gray-800 dark:text-white">{{ msg.name }}</h4>
+                      <p class="text-[10px] text-gray-400">{{ new Date(msg.created_at).toLocaleString() }}</p>
+                    </div>
+                    <span v-if="!msg.is_read" class="w-2 h-2 rounded-full bg-yellow-600 dark:bg-primary animate-pulse"></span>
+                  </div>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                    :class="msg.project_type === 'chatbot' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'">
+                    {{ msg.project_type === 'chatbot' ? 'Chatbot' : 'Web Dev' }}
+                  </span>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-on-surface-variant mb-3">{{ msg.message }}</p>
+                <div class="flex items-center justify-between">
+                  <div v-if="msg.phone" class="flex items-center gap-1 text-[10px] text-gray-400">
+                    <span class="material-symbols-outlined text-xs">phone</span> {{ msg.phone }}
+                  </div>
+                  <div v-else></div>
+                  <button v-if="!msg.is_read" @click="markAsRead(msg.id)" class="text-[10px] text-yellow-600 dark:text-primary hover:underline">Mark as read</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Experience Management (when activeTab === 'experience') -->
           <div v-if="activeTab === 'experience'">
             <div class="flex justify-between items-center mb-8">
@@ -888,6 +941,7 @@ const loginError = ref('')
 // Tabs config
 const tabs = [
   { name: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { name: 'messages', label: 'Messages', icon: 'mail' },
   { name: 'experience', label: 'Experience', icon: 'work' },
   { name: 'expertise', label: 'Expertise', icon: 'psychology' },
   { name: 'settings', label: 'Settings', icon: 'settings' }
@@ -1000,6 +1054,27 @@ const loadAnalytics = async () => {
   } catch {
     analyticsData.value = {}
   }
+}
+
+const contactMessages = ref([])
+
+const loadMessages = async () => {
+  try {
+    const res = await fetch(`${API_BASE}/contact-messages`, {
+      headers: { 'Authorization': `Bearer ${authToken.value}` }
+    })
+    if (res.ok) contactMessages.value = await res.json()
+  } catch { contactMessages.value = [] }
+}
+
+const markAsRead = async (id) => {
+  try {
+    await fetch(`${API_BASE}/contact-messages/${id}/read`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${authToken.value}` }
+    })
+    await loadMessages()
+  } catch {}
 }
 
 // Country name → flag emoji
@@ -1389,6 +1464,9 @@ onMounted(() => {
 
   // Load analytics
   loadAnalytics()
+
+  // Load messages
+  if (isAuthenticated.value) loadMessages()
 
   // Load existing logs or inject initial data
   const storedLogs = localStorage.getItem('visitor_logs')

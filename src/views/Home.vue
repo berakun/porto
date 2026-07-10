@@ -362,7 +362,20 @@
                 </div>
               </div>
 
-              <!-- Item 2 -->
+              <!-- Phone -->
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center border text-yellow-600 dark:text-primary"
+                  :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5' : 'bg-gray-50 border-gray-200']"
+                >
+                  <span class="material-symbols-outlined text-sm">phone</span>
+                </div>
+                <div>
+                  <span class="text-[9px] font-code-sm text-gray-500 uppercase tracking-wider">Phone Number</span>
+                  <p class="text-sm font-semibold text-gray-800 dark:text-white">+628****2710</p>
+                </div>
+              </div>
+
+              <!-- Location -->
               <div class="flex items-center gap-4">
                 <div class="w-10 h-10 rounded-full flex items-center justify-center border text-yellow-600 dark:text-primary"
                   :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5' : 'bg-gray-50 border-gray-200']"
@@ -388,6 +401,7 @@
                   <input 
                     type="text" 
                     required
+                    v-model="contactForm.name"
                     placeholder="Enter your name..."
                     class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all"
                     :class="[
@@ -401,6 +415,7 @@
                   <label class="block text-[10px] font-code-sm uppercase tracking-wider mb-2 text-gray-500">PROJECT TYPE</label>
                   <select 
                     required
+                    v-model="contactForm.project_type"
                     class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all cursor-pointer"
                     :class="[
                       theme === 'dark'
@@ -411,15 +426,28 @@
                     <option value="" disabled selected>Select Project Type</option>
                     <option value="web">Web Development</option>
                     <option value="chatbot">Chatbot Engineering</option>
-                    <option value="design">UI/UX Design</option>
                   </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-code-sm uppercase tracking-wider mb-2 text-gray-500">PHONE (OPTIONAL)</label>
+                  <input 
+                    type="tel" 
+                    v-model="contactForm.phone"
+                    placeholder="+62..."
+                    class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all"
+                    :class="[
+                      theme === 'dark'
+                        ? 'bg-[#161b25] border-white/10 focus:border-primary text-white focus:ring-1 focus:ring-primary'
+                        : 'bg-white border-gray-300 focus:border-yellow-600 text-gray-900 focus:ring-1 focus:ring-yellow-600'
+                    ]"
+                  />
                 </div>
                 <div>
                   <label class="block text-[10px] font-code-sm uppercase tracking-wider mb-2 text-gray-500">MESSAGE</label>
                   <textarea 
                     rows="4" 
                     required
-                    placeholder="Describe your project details..."
+                    v-model="contactForm.message"
                     class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all resize-none"
                     :class="[
                       theme === 'dark'
@@ -473,6 +501,14 @@ const theme = ref('dark')
 const isHidden = ref(false)
 const onIsHidden = ref(false)
 const sentStatus = ref(false)
+const sending = ref(false)
+
+const contactForm = ref({
+  name: '',
+  phone: '',
+  project_type: '',
+  message: ''
+})
 
 const lastScrollTop = ref(0)
 const onLastScrollTop = ref(0)
@@ -548,11 +584,22 @@ const scrollToSection = (id) => {
   }
 }
 
-const submitContact = () => {
-  sentStatus.value = true
-  setTimeout(() => {
-    sentStatus.value = false
-  }, 3000)
+const submitContact = async () => {
+  if (sending.value) return
+  sending.value = true
+  try {
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(contactForm.value)
+    })
+    if (res.ok) {
+      sentStatus.value = true
+      contactForm.value = { name: '', phone: '', project_type: '', message: '' }
+    }
+  } catch {}
+  sending.value = false
+  setTimeout(() => { sentStatus.value = false }, 3000)
 }
 
 const activeCategoryItems = computed(() => {
