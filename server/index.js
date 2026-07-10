@@ -225,6 +225,67 @@ app.put('/api/experiences', authMiddleware, async (req, res) => {
   }
 })
 
+
+// === Work Tracing Endpoints ===
+app.get('/api/work-tracing', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM work_tracing ORDER BY sort_order ASC, start_date DESC')
+    rows.forEach(r => { if (typeof r.tags === 'string') r.tags = JSON.parse(r.tags); else if (!Array.isArray(r.tags)) r.tags = [] })
+    res.json(rows)
+  } catch (error) {
+    console.error('Get work tracing error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.post('/api/work-tracing', authMiddleware, async (req, res) => {
+  try {
+    const { title, company, type, location, start_date, end_date, is_current, description, tags } = req.body
+    if (!title || !company || !start_date) return res.status(400).json({ error: 'title, company, start_date required' })
+    const tagsJson = JSON.stringify(tags || [])
+    const [result] = await pool.query(
+      'INSERT INTO work_tracing (title, company, type, location, start_date, end_date, is_current, description, tags, sort_order) VALUES (?,?,?,?,?,?,?,?,?,0)',
+      [title, company, type||'full-time', location||'', start_date, end_date||null, is_current||false, description||'', tagsJson]
+    )
+    const [rows] = await pool.query('SELECT * FROM work_tracing WHERE id = ?', [result.insertId])
+    rows[0].tags = JSON.parse(rows[0].tags || '[]')
+    res.json({ success: true, item: rows[0] })
+  } catch (error) {
+    console.error('Add work tracing error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.put('/api/work-tracing/:id', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params
+    const { title, company, type, location, start_date, end_date, is_current, description, tags, sort_order } = req.body
+    const tagsJson = JSON.stringify(tags || [])
+    await pool.query(
+      'UPDATE work_tracing SET title=?, company=?, type=?, location=?, start_date=?, end_date=?, is_current=?, description=?, tags=?, sort_order=? WHERE id=?',
+      [title, company, type||'full-time', location||'', start_date, end_date||null, is_current||false, description||'', tagsJson, sort_order||0, id]
+    )
+    const [rows] = await pool.query('SELECT * FROM work_tracing WHERE id = ?', [id])
+    if (rows.length === 0) return res.status(404).json({ error: 'Not found' })
+    rows[0].tags = JSON.parse(rows[0].tags || '[]')
+    res.json({ success: true, item: rows[0] })
+  } catch (error) {
+    console.error('Update work tracing error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.delete('/api/work-tracing/:id', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params
+    await pool.query('DELETE FROM work_tracing WHERE id = ?', [id])
+    res.json({ success: true })
+  } catch (error) {
+    console.error('Delete work tracing error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // === Expertise Endpoints ===
 
 // GET expertise (public — landing page reads without auth)

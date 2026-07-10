@@ -513,6 +513,127 @@
             </div>
           </div>
 
+          <!-- Work Tracing Management (when activeTab === 'work-tracing') -->
+          <div v-if="activeTab === 'work-tracing'">
+            <div class="flex justify-between items-center mb-8">
+              <div>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white font-display-lg">Work Tracing</h3>
+                <p class="text-xs text-gray-500 dark:text-on-surface-variant/80 mt-1">Manage your career timeline & work history</p>
+              </div>
+              <button @click="openWorkForm()" class="bg-yellow-600 dark:bg-primary text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 hover:opacity-90">
+                <span class="material-symbols-outlined text-sm">add</span> Add Work
+              </button>
+            </div>
+
+            <div v-if="workItems.length === 0" class="text-center py-16 bg-gray-50 dark:bg-[#161b25] rounded-xl border border-gray-200 dark:border-white/5">
+              <span class="material-symbols-outlined text-5xl text-gray-300 dark:text-white/10 block mb-3">work_history</span>
+              <p class="text-sm text-gray-500 dark:text-on-surface-variant/80">No work history yet.</p>
+            </div>
+
+            <div v-else class="space-y-4">
+              <div v-for="item in workItems" :key="item.id"
+                class="p-5 rounded-xl border flex items-center justify-between transition-all duration-200"
+                :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5 hover:border-primary/20' : 'bg-white border-gray-200']">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+                    :class="[theme === 'dark' ? 'bg-primary/10' : 'bg-yellow-50']">
+                    <span class="material-symbols-outlined text-lg text-yellow-600 dark:text-primary">work</span>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-gray-800 dark:text-white">{{ item.title }}</h4>
+                    <p class="text-xs text-yellow-600 dark:text-primary font-semibold">{{ item.company }}</p>
+                    <p class="text-[10px] text-gray-400 dark:text-on-surface-variant/60 mt-1">
+                      {{ item.start_date?.slice(0,4) }} — {{ item.is_current ? 'Present' : item.end_date?.slice(0,4) }}
+                      <span v-if="item.location"> · {{ item.location }}</span>
+                    </p>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <button @click="openWorkForm(item)" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                    :class="[theme === 'dark' ? 'text-gray-400' : 'text-gray-500']">
+                    <span class="material-symbols-outlined text-sm">edit</span>
+                  </button>
+                  <button @click="deleteWork(item.id)" class="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-red-400">
+                    <span class="material-symbols-outlined text-sm">delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Work Form Modal -->
+            <div v-if="showWorkForm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="showWorkForm=false">
+              <div class="bg-white dark:bg-[#161b25] rounded-2xl p-6 w-full max-w-lg mx-4 max-h-[85vh] overflow-y-auto border border-gray-200 dark:border-white/10">
+                <div class="flex items-center justify-between mb-6">
+                  <h3 class="text-lg font-bold text-gray-800 dark:text-white">{{ editingWork ? 'Edit Work' : 'Add Work History' }}</h3>
+                  <button @click="showWorkForm=false" class="text-gray-400 hover:text-gray-600 dark:hover:text-white">
+                    <span class="material-symbols-outlined">close</span>
+                  </button>
+                </div>
+
+                <div class="space-y-4">
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-[10px] font-code-sm uppercase tracking-wider mb-2 text-gray-500">Title *</label>
+                      <input v-model="workForm.title" class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all bg-gray-50 dark:bg-[#0b0f17] border-gray-200 dark:border-white/10 text-gray-800 dark:text-white focus:border-yellow-600 dark:focus:border-primary" placeholder="e.g. Full-stack Developer" />
+                    </div>
+                    <div>
+                      <label class="block text-[10px] font-code-sm uppercase tracking-wider mb-2 text-gray-500">Company *</label>
+                      <input v-model="workForm.company" class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all bg-gray-50 dark:bg-[#0b0f17] border-gray-200 dark:border-white/10 text-gray-800 dark:text-white focus:border-yellow-600 dark:focus:border-primary" placeholder="e.g. Botika" />
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-[10px] font-code-sm uppercase tracking-wider mb-2 text-gray-500">Type</label>
+                      <select v-model="workForm.type" class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all cursor-pointer bg-gray-50 dark:bg-[#0b0f17] border-gray-200 dark:border-white/10 text-gray-800 dark:text-white focus:border-yellow-600 dark:focus:border-primary">
+                        <option value="full-time">Full-time</option>
+                        <option value="part-time">Part-time</option>
+                        <option value="contract">Contract</option>
+                        <option value="freelance">Freelance</option>
+                        <option value="internship">Internship</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-[10px] font-code-sm uppercase tracking-wider mb-2 text-gray-500">Location</label>
+                      <input v-model="workForm.location" class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all bg-gray-50 dark:bg-[#0b0f17] border-gray-200 dark:border-white/10 text-gray-800 dark:text-white focus:border-yellow-600 dark:focus:border-primary" placeholder="e.g. Remote, Indonesia" />
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-[10px] font-code-sm uppercase tracking-wider mb-2 text-gray-500">Start Date *</label>
+                      <input v-model="workForm.start_date" type="date" class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all bg-gray-50 dark:bg-[#0b0f17] border-gray-200 dark:border-white/10 text-gray-800 dark:text-white focus:border-yellow-600 dark:focus:border-primary" />
+                    </div>
+                    <div>
+                      <label class="block text-[10px] font-code-sm uppercase tracking-wider mb-2 text-gray-500">End Date</label>
+                      <input v-model="workForm.end_date" type="date" :disabled="workForm.is_current" class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all bg-gray-50 dark:bg-[#0b0f17] border-gray-200 dark:border-white/10 text-gray-800 dark:text-white focus:border-yellow-600 dark:focus:border-primary disabled:opacity-50" />
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-3">
+                    <input type="checkbox" v-model="workForm.is_current" id="is_current" class="w-4 h-4 text-yellow-600 rounded focus:ring-yellow-600" />
+                    <label for="is_current" class="text-xs text-gray-600 dark:text-on-surface-variant/80">I currently work here</label>
+                  </div>
+
+                  <div>
+                    <label class="block text-[10px] font-code-sm uppercase tracking-wider mb-2 text-gray-500">Description</label>
+                    <textarea v-model="workForm.description" rows="3" class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all bg-gray-50 dark:bg-[#0b0f17] border-gray-200 dark:border-white/10 text-gray-800 dark:text-white focus:border-yellow-600 dark:focus:border-primary" placeholder="Describe your role and responsibilities..."></textarea>
+                  </div>
+
+                  <div>
+                    <label class="block text-[10px] font-code-sm uppercase tracking-wider mb-2 text-gray-500">Tags (comma-separated)</label>
+                    <input v-model="workForm.tags" class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all bg-gray-50 dark:bg-[#0b0f17] border-gray-200 dark:border-white/10 text-gray-800 dark:text-white focus:border-yellow-600 dark:focus:border-primary" placeholder="e.g. JavaScript, Vue.js, Node.js" />
+                  </div>
+
+                  <div class="flex gap-3 pt-2">
+                    <button @click="showWorkForm=false" class="flex-1 py-3 rounded-lg border text-sm font-semibold transition-all border-gray-200 dark:border-white/10 text-gray-600 dark:text-on-surface-variant hover:bg-gray-50 dark:hover:bg-white/5">Cancel</button>
+                    <button @click="saveWork" class="flex-1 py-3 rounded-lg bg-yellow-600 dark:bg-primary text-white text-sm font-semibold hover:opacity-90 transition-all">Save Work</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Experience Management (when activeTab === 'experience') -->
           <div v-if="activeTab === 'experience'">
             <div class="flex justify-between items-center mb-8">
@@ -942,6 +1063,7 @@ const loginError = ref('')
 const tabs = [
   { name: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
   { name: 'messages', label: 'Messages', icon: 'mail' },
+  { name: 'work-tracing', label: 'Work Tracing', icon: 'work_history' },
   { name: 'experience', label: 'Experience', icon: 'work' },
   { name: 'expertise', label: 'Expertise', icon: 'psychology' },
   { name: 'settings', label: 'Settings', icon: 'settings' }
@@ -1074,6 +1196,59 @@ const markAsRead = async (id) => {
       headers: { 'Authorization': `Bearer ${authToken.value}` }
     })
     await loadMessages()
+  } catch {}
+}
+
+// Work Tracing CRUD
+const workItems = ref([])
+const showWorkForm = ref(false)
+const editingWork = ref(null)
+const workForm = ref({ title: '', company: '', type: 'full-time', location: '', start_date: '', end_date: '', is_current: false, description: '', tags: '' })
+
+const loadWorkItems = async () => {
+  try {
+    const res = await fetch(`${API_BASE}/work-tracing`)
+    if (res.ok) workItems.value = await res.json()
+  } catch {}
+}
+
+const openWorkForm = (item = null) => {
+  editingWork.value = item
+  if (item) {
+    workForm.value = { ...item, tags: item.tags ? item.tags.join(', ') : '' }
+  } else {
+    workForm.value = { title: '', company: '', type: 'full-time', location: '', start_date: '', end_date: '', is_current: false, description: '', tags: '' }
+  }
+  showWorkForm.value = true
+}
+
+const saveWork = async () => {
+  const payload = {
+    ...workForm.value,
+    tags: workForm.value.tags ? workForm.value.tags.split(',').map(t => t.trim()).filter(Boolean) : []
+  }
+  const url = editingWork.value
+    ? `${API_BASE}/work-tracing/${editingWork.value.id}`
+    : `${API_BASE}/work-tracing`
+  const method = editingWork.value ? 'PUT' : 'POST'
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken.value}` },
+      body: JSON.stringify(payload)
+    })
+    if (res.ok) { showWorkForm.value = false; await loadWorkItems() }
+  } catch {}
+}
+
+const deleteWork = async (id) => {
+  if (!confirm('Delete this work entry?')) return
+  try {
+    await fetch(`${API_BASE}/work-tracing/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${authToken.value}` }
+    })
+    await loadWorkItems()
   } catch {}
 }
 
@@ -1467,6 +1642,7 @@ onMounted(() => {
 
   // Load messages
   if (isAuthenticated.value) loadMessages()
+  loadWorkItems()
 
   // Load existing logs or inject initial data
   const storedLogs = localStorage.getItem('visitor_logs')

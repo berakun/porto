@@ -42,17 +42,24 @@
           </button>
           <button
             type="button"
+            @click="scrollToSection('work-tracing')"
+            class="text-[11px] md:text-xs font-code-sm font-semibold transition-all duration-200 text-gray-600 dark:text-on-surface-variant hover:text-red-700 dark:hover:text-primary relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-yellow-600 dark:after:bg-primary hover:after:w-full after:transition-all"
+          >
+            03. WORK TRACING
+          </button>
+          <button
+            type="button"
             @click="scrollToSection('experience')"
             class="text-[11px] md:text-xs font-code-sm font-semibold transition-all duration-200 text-gray-600 dark:text-on-surface-variant hover:text-red-700 dark:hover:text-primary relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-yellow-600 dark:after:bg-primary hover:after:w-full after:transition-all"
           >
-            03. EXPERIENCE
+            04. EXPERIENCE
           </button>
           <button
             type="button"
             @click="scrollToSection('portfolio')"
             class="text-[11px] md:text-xs font-code-sm font-semibold transition-all duration-200 text-gray-600 dark:text-on-surface-variant hover:text-red-700 dark:hover:text-primary relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-yellow-600 dark:after:bg-primary hover:after:w-full after:transition-all"
           >
-            04. EXPERTISE
+            05. EXPERTISE
           </button>
 
           <!-- Theme Switcher -->
@@ -238,11 +245,90 @@
       </div>
     </section>
 
+    <!-- Work Tracing Section -->
+    <section id="work-tracing" class="py-28 border-t relative z-10 px-6 md:px-12 dark:bg-[#0b0f17] border-gray-150 dark:border-white/5">
+      <div class="container mx-auto">
+        <div class="text-center mb-16">
+          <span class="text-xs font-code-sm text-yellow-600 dark:text-primary tracking-widest uppercase mb-3 block">03. WORK TRACING</span>
+          <h3 class="font-display-lg text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Career Timeline</h3>
+          <p class="text-xs font-code-sm text-gray-500 dark:text-on-surface-variant/80 mt-2">Professional journey & work experience</p>
+        </div>
+
+        <div class="max-w-3xl mx-auto">
+          <div class="relative">
+            <!-- Vertical timeline line -->
+            <div class="absolute left-[19px] top-0 bottom-0 w-[2px] bg-gray-200 dark:bg-white/10"></div>
+
+            <div v-if="workTracing.length === 0" class="text-center py-12">
+              <span class="material-symbols-outlined text-4xl text-gray-300 dark:text-white/10 block mb-3">work_history</span>
+              <p class="text-sm text-gray-400 dark:text-on-surface-variant/60">No work history yet.</p>
+            </div>
+
+            <div v-for="(work, i) in workTracing" :key="work.id" class="relative pl-14 pb-12 last:pb-0">
+              <!-- Timeline dot -->
+              <div class="absolute left-[13px] w-[14px] h-[14px] rounded-full border-2 z-10"
+                :class="[work.is_current 
+                  ? 'bg-yellow-600 dark:bg-primary border-yellow-600 dark:border-primary shadow-[0_0_10px_rgba(246,190,57,0.5)]' 
+                  : 'bg-white dark:bg-[#0b0f17] border-gray-300 dark:border-white/20']">
+              </div>
+
+              <!-- Content Card -->
+              <div class="p-6 rounded-xl border transition-all duration-300"
+                :class="[theme === 'dark' 
+                  ? 'bg-[#161b25] border-white/5 hover:border-primary/20' 
+                  : 'bg-gray-50 border-gray-200 hover:border-yellow-600/20']">
+                
+                <!-- Header -->
+                <div class="flex items-start justify-between mb-3">
+                  <div>
+                    <p class="text-[10px] font-code-sm text-gray-400 dark:text-on-surface-variant/60 uppercase tracking-wider mb-1">{{ work.type.replace('-',' ') }}</p>
+                    <h4 class="text-base font-bold text-gray-800 dark:text-white">{{ work.title }}</h4>
+                    <p class="text-sm text-yellow-600 dark:text-primary font-semibold">{{ work.company }}</p>
+                  </div>
+                  <span v-if="work.is_current" class="text-[10px] font-code-sm px-2 py-1 rounded-full border whitespace-nowrap"
+                    :class="[theme === 'dark' ? 'border-primary/30 text-primary bg-primary/5' : 'border-yellow-600/30 text-yellow-700 bg-yellow-50']">
+                    Current
+                  </span>
+                </div>
+
+                <!-- Meta -->
+                <div class="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-gray-400 dark:text-on-surface-variant/60 mb-3">
+                  <span class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">calendar_month</span>
+                    {{ formatDate(work.start_date) }} — {{ work.is_current ? 'Present' : formatDate(work.end_date) }}
+                  </span>
+                  <span v-if="work.location" class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">location_on</span>
+                    {{ work.location }}
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">schedule</span>
+                    {{ calcDuration(work) }}
+                  </span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs text-gray-600 dark:text-on-surface-variant/80 leading-relaxed mb-3">{{ work.description }}</p>
+
+                <!-- Tags -->
+                <div v-if="work.tags && work.tags.length" class="flex flex-wrap gap-1.5">
+                  <span v-for="tag in work.tags" :key="tag" class="text-[9px] font-code-sm px-2 py-0.5 rounded-md"
+                    :class="[theme === 'dark' ? 'bg-white/5 text-gray-300' : 'bg-gray-200/70 text-gray-600']">
+                    {{ tag }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Experience Section -->
     <section id="experience" class="py-28 border-t relative z-10 px-6 md:px-12 dark:bg-[#0b0f17] border-gray-150 dark:border-white/5">
       <div class="container mx-auto">
         <div class="text-center mb-16">
-          <span class="text-xs font-code-sm text-yellow-600 dark:text-primary tracking-widest uppercase mb-3 block">03. EXPERIENCE</span>
+          <span class="text-xs font-code-sm text-yellow-600 dark:text-primary tracking-widest uppercase mb-3 block">04. EXPERIENCE</span>
           <h3 class="font-display-lg text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Projects & Work</h3>
           <p class="text-xs font-code-sm text-gray-500 dark:text-on-surface-variant/80 mt-2">Featured projects and contributions</p>
         </div>
@@ -280,7 +366,7 @@
     <section id="portfolio" class="py-28 border-t relative z-10 px-6 md:px-12 dark:bg-[#0b0f17] border-gray-150 dark:border-white/5">
       <div class="container mx-auto">
         <div class="text-center mb-16">
-          <span class="text-xs font-code-sm text-yellow-600 dark:text-primary tracking-widest uppercase mb-3 block">04. EXPERTISE</span>
+          <span class="text-xs font-code-sm text-yellow-600 dark:text-primary tracking-widest uppercase mb-3 block">05. EXPERTISE</span>
           <h3 class="font-display-lg text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Core Tech Stack</h3>
           <p class="text-xs font-code-sm text-gray-500 dark:text-on-surface-variant/80 mt-2">Featured tools and technologies</p>
         </div>
@@ -354,7 +440,7 @@
           <!-- Contact Info -->
           <div class="lg:col-span-5 space-y-8">
             <div class="flex flex-col items-start">
-              <span class="text-xs font-code-sm text-yellow-600 dark:text-primary tracking-widest uppercase mb-3">05. CONTACT</span>
+              <span class="text-xs font-code-sm text-yellow-600 dark:text-primary tracking-widest uppercase mb-3">06. CONTACT</span>
               <h3 class="font-display-lg text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Let's Collaborate</h3>
               <p class="text-xs font-code-sm text-gray-500 dark:text-on-surface-variant/80 mt-2">Have an exciting project or want to collaborate?</p>
             </div>
@@ -526,9 +612,8 @@ const onLastScrollTop = ref(0)
 
 const activeCategory = ref('development')
 
-// Experience data from API
 const experiences = ref([])
-
+const workTracing = ref([])
 // Expertise data from API
 const expertiseItems = ref([])
 const expertiseCategories = ref([])
@@ -556,6 +641,30 @@ const loadExpertise = async () => {
     expertiseItems.value = []
     expertiseCategories.value = []
   }
+}
+
+const loadWorkTracing = async () => {
+  try {
+    const res = await fetch('/api/work-tracing')
+    if (res.ok) workTracing.value = await res.json()
+  } catch { workTracing.value = [] }
+}
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+}
+
+const calcDuration = (work) => {
+  const start = new Date(work.start_date)
+  const end = work.is_current ? new Date() : new Date(work.end_date)
+  const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth())
+  const yrs = Math.floor(months / 12)
+  const mos = months % 12
+  if (yrs > 0 && mos > 0) return `${yrs} yr${yrs > 1 ? 's' : ''} ${mos} mo`
+  if (yrs > 0) return `${yrs} yr${yrs > 1 ? 's' : ''}`
+  return `${mos} mo`
 }
 
 const toggleTheme = () => {
@@ -638,6 +747,7 @@ onMounted(() => {
     document.documentElement.classList.remove('dark')
   }
   loadExperiences()
+  loadWorkTracing()
   loadExpertise()
   logVisit()
   window.addEventListener('scroll', handleScroll)
