@@ -561,6 +561,21 @@
       </div>
     </footer>
   </div>
+
+  <!-- Toast Notification -->
+  <transition name="toast">
+    <div v-if="showToast"
+      class="fixed bottom-6 right-6 z-[999] flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-2xl border backdrop-blur-sm pointer-events-none"
+      :class="[
+        theme === 'dark'
+          ? 'bg-[#161b25]/95 border-primary/30 text-white'
+          : 'bg-white/95 border-gray-200 text-gray-800'
+      ]"
+    >
+      <span class="material-symbols-outlined text-lg" :class="toastColor">{{ toastIcon }}</span>
+      <span class="text-sm font-semibold">{{ toastMessage }}</span>
+    </div>
+  </transition>
 </template>
 
 <script setup>
@@ -570,6 +585,10 @@ const theme = ref('dark')
 const isHidden = ref(false)
 const onIsHidden = ref(false)
 const sentStatus = ref(false)
+const showToast = ref(false)
+const toastMessage = ref('')
+const toastIcon = ref('check_circle')
+const toastColor = ref('text-green-500')
 const sending = ref(false)
 
 const contactForm = ref({
@@ -688,8 +707,25 @@ const submitContact = async () => {
     if (res.ok) {
       sentStatus.value = true
       contactForm.value = { name: '', phone: '', project_type: '', message: '' }
+      toastMessage.value = 'Message sent successfully!'
+      toastIcon.value = 'check_circle'
+      toastColor.value = 'text-green-500'
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 3500)
+    } else {
+      toastMessage.value = 'Failed to send. Try again.'
+      toastIcon.value = 'error'
+      toastColor.value = 'text-red-500'
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 3500)
     }
-  } catch {}
+  } catch {
+    toastMessage.value = 'Network error. Check your connection.'
+    toastIcon.value = 'error'
+    toastColor.value = 'text-red-500'
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 3500)
+  }
   sending.value = false
   setTimeout(() => { sentStatus.value = false }, 3000)
 }
@@ -745,5 +781,21 @@ onUnmounted(() => {
 }
 .font-code-sm {
   font-family: monospace;
+}
+
+/* Toast transition */
+.toast-enter-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.toast-leave-active {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.toast-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(30px) scale(0.95);
 }
 </style>
