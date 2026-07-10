@@ -193,27 +193,29 @@
             </p>
           </div>
 
-          <!-- Right side: Stats and Current Role -->
-          <div class="lg:col-span-5 flex flex-col justify-center space-y-6">
-            <div class="grid grid-cols-2 gap-6">
-              <!-- Stat Card 1 -->
-              <div class="p-8 rounded-xl border text-center relative overflow-hidden transition-all duration-300"
-                :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5' : 'bg-gray-50 border-gray-200']"
-              >
-                <span class="text-4xl md:text-5xl font-bold font-display-lg text-yellow-600 dark:text-primary">4+</span>
-                <p class="text-[10px] font-code-sm uppercase tracking-wider text-gray-500 dark:text-on-surface-variant/80 mt-2">Years Experience</p>
-              </div>
-
-              <!-- Stat Card 2 -->
-              <div class="p-8 rounded-xl border text-center relative overflow-hidden transition-all duration-300"
-                :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5' : 'bg-gray-50 border-gray-200']"
-              >
-                <span class="text-4xl md:text-5xl font-bold font-display-lg text-yellow-600 dark:text-primary">15+</span>
-                <p class="text-[10px] font-code-sm uppercase tracking-wider text-gray-500 dark:text-on-surface-variant/80 mt-2">Projects Chatbot Completed</p>
+          <!-- Right side: Stats -->
+          <div class="lg:col-span-5 flex flex-col justify-center space-y-4">
+            <!-- Stat Card 1 -->
+            <div class="p-6 rounded-xl border flex items-center gap-5 transition-all duration-300"
+              :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5' : 'bg-gray-50 border-gray-200']"
+            >
+              <span class="text-4xl md:text-5xl font-bold font-display-lg text-yellow-600 dark:text-primary leading-none">4+</span>
+              <div>
+                <p class="text-xs font-semibold text-gray-800 dark:text-white">Years Experience</p>
+                <p class="text-[10px] text-gray-400 dark:text-on-surface-variant/60 mt-0.5">Professional career</p>
               </div>
             </div>
 
-
+            <!-- Stat Card 2 -->
+            <div class="p-6 rounded-xl border flex items-center gap-5 transition-all duration-300"
+              :class="[theme === 'dark' ? 'bg-[#161b25] border-white/5' : 'bg-gray-50 border-gray-200']"
+            >
+              <span class="text-4xl md:text-5xl font-bold font-display-lg text-yellow-600 dark:text-primary leading-none">15+</span>
+              <div>
+                <p class="text-xs font-semibold text-gray-800 dark:text-white">Projects Completed</p>
+                <p class="text-[10px] text-gray-400 dark:text-on-surface-variant/60 mt-0.5">Enterprise chatbots & web apps</p>
+              </div>
+            </div>
           </div>
 
         </div>
