@@ -23,7 +23,7 @@
             </svg>
           </div>
           <h1 class="font-display-lg text-headline-md text-gray-800 dark:text-white">RF ADMIN</h1>
-          <p class="text-xs text-gray-500 dark:text-on-surface-variant/80 mt-1 uppercase tracking-widest">Sign in to Visitor Analytics</p>
+          <p class="text-xs text-gray-500 dark:text-on-surface-variant/80 mt-1 uppercase tracking-widest">Sign in to Portfolio Admin</p>
         </div>
 
         <form @submit.prevent="handleLogin" class="space-y-6">
@@ -185,7 +185,7 @@
             <button class="md:hidden p-2 text-yellow-600 dark:text-primary rounded hover:bg-gray-100 dark:hover:bg-white/5 transition" @click="mobileSidebarOpen = !mobileSidebarOpen">
               <span class="material-symbols-outlined block">menu</span>
             </button>
-            <h2 class="font-display-lg text-headline-md text-yellow-600 dark:text-primary tracking-tight">Visitor Analytics</h2>
+            <h2 class="font-display-lg text-headline-md text-yellow-600 dark:text-primary tracking-tight">Expertise Manager</h2>
           </div>
           
           <div class="flex items-center gap-6">
@@ -459,195 +459,225 @@
             </div>
           </div>
 
-          <!-- Summary Cards (Dashboard/Analytics only) -->
-          <div v-if="activeTab === 'dashboard' || activeTab === 'analytics'" class="space-y-8">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Card 1 -->
-            <div class="p-6 rounded-2xl border relative overflow-hidden group hover:border-yellow-600/40 dark:hover:border-primary/40 transition-colors"
-              :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']"
-            >
-              <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <span class="material-symbols-outlined text-8xl text-yellow-600 dark:text-primary">group</span>
+          <!-- Expertise Management (when activeTab === 'expertise') -->
+          <div v-if="activeTab === 'expertise'">
+            <div class="flex justify-between items-center mb-8">
+              <div>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white font-display-lg">Manage Expertise</h3>
+                <p class="text-xs text-gray-500 dark:text-on-surface-variant/80 mt-1">Add, edit, or remove tech stack items from your portfolio</p>
               </div>
-              <p class="font-label-md text-xs mb-2 text-gray-500 dark:text-on-surface-variant">Today's Visitors</p>
-              <div class="flex items-end gap-3">
-                <h3 class="text-headline-lg-mobile md:text-headline-md font-bold text-yellow-600 dark:text-primary">{{ todayVisitorsCount }}</h3>
-                <span class="text-emerald-500 font-label-md text-xs flex items-center mb-1">
-                  <span class="material-symbols-outlined text-sm mr-0.5">trending_up</span>
-                  +12%
-                </span>
-              </div>
-            </div>
-
-            <!-- Card 2 -->
-            <div class="p-6 rounded-2xl border relative overflow-hidden group hover:border-yellow-600/40 dark:hover:border-primary/40 transition-colors"
-              :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']"
-            >
-              <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <span class="material-symbols-outlined text-8xl text-yellow-600 dark:text-primary">public</span>
-              </div>
-              <p class="font-label-md text-xs mb-2 text-gray-500 dark:text-on-surface-variant">Total Logged Visits</p>
-              <div class="flex items-end gap-3">
-                <h3 class="text-headline-lg-mobile md:text-headline-md font-bold text-yellow-600 dark:text-primary">{{ logs.length }}</h3>
-                <span class="text-gray-400 font-label-md text-xs mb-1">Live DB</span>
+              <div class="flex gap-3">
+                <button 
+                  @click="openCategoryModal()"
+                  class="px-4 py-2 text-xs font-semibold rounded-lg border border-yellow-600/30 dark:border-primary/30 text-yellow-600 dark:text-primary hover:bg-yellow-600/5 dark:hover:bg-primary/5 transition-all flex items-center gap-2"
+                >
+                  <span class="material-symbols-outlined text-sm">add</span>
+                  Add Category
+                </button>
+                <button 
+                  @click="openExpertiseModal()"
+                  class="px-4 py-2 text-xs font-semibold rounded-lg bg-yellow-600 dark:bg-primary text-white dark:text-on-primary hover:opacity-90 transition-all flex items-center gap-2"
+                >
+                  <span class="material-symbols-outlined text-sm">add</span>
+                  Add Expertise
+                </button>
               </div>
             </div>
 
-            <!-- Card 3 -->
-            <div class="p-6 rounded-2xl border relative overflow-hidden group hover:border-yellow-600/40 dark:hover:border-primary/40 transition-colors"
-              :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']"
-            >
-              <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <span class="material-symbols-outlined text-8xl text-yellow-600 dark:text-primary">flag</span>
+            <!-- Categories Overview -->
+            <div class="mb-8">
+              <h4 class="text-sm font-bold text-gray-600 dark:text-on-surface-variant/80 mb-3 uppercase tracking-wider">Categories</h4>
+              <div class="flex flex-wrap gap-3">
+                <div 
+                  v-for="(cat, ci) in expertiseCategories" 
+                  :key="cat.id"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all"
+                  :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5 hover:border-primary/20' : 'bg-white border-gray-200']"
+                >
+                  <span class="text-xs font-bold text-yellow-600 dark:text-primary">{{ ci + 1 }}.</span>
+                  <span class="text-sm font-semibold text-gray-800 dark:text-white">{{ cat.label }}</span>
+                  <button @click="openCategoryModal(cat, ci)" class="p-1 hover:bg-gray-100 dark:hover:bg-white/5 rounded text-gray-400 hover:text-yellow-600 dark:hover:text-primary transition-all">
+                    <span class="material-symbols-outlined text-sm">edit</span>
+                  </button>
+                  <button @click="deleteCategory(ci)" class="p-1 hover:bg-red-50 dark:hover:bg-red-500/10 rounded text-gray-400 hover:text-red-500 transition-all">
+                    <span class="material-symbols-outlined text-sm">delete</span>
+                  </button>
+                </div>
               </div>
-              <p class="font-label-md text-xs mb-2 text-gray-500 dark:text-on-surface-variant">Top Referrer</p>
-              <div class="flex items-center gap-4">
-                <h3 class="text-headline-lg-mobile md:text-headline-md font-bold text-yellow-600 dark:text-primary">{{ topReferrer }}</h3>
-                <div class="flex flex-col">
-                  <span class="text-[10px] text-gray-500 dark:text-on-surface-variant">{{ topReferrerPercentage }}% of Traffic</span>
-                  <div class="w-24 h-1 bg-gray-200 dark:bg-white/10 rounded-full mt-1">
-                    <div class="h-full bg-yellow-600 dark:bg-primary rounded-full" :style="{ width: topReferrerPercentage + '%' }"></div>
+            </div>
+
+            <!-- Expertise List grouped by category -->
+            <div v-for="cat in expertiseCategories" :key="cat.id" class="mb-8">
+              <h4 class="text-sm font-bold text-gray-600 dark:text-on-surface-variant/80 mb-3 uppercase tracking-wider">{{ cat.label }}</h4>
+              <div class="space-y-3">
+                <div 
+                  v-for="(item, idx) in expertiseItems.filter(e => e.category === cat.id)" 
+                  :key="item.id"
+                  class="p-5 rounded-xl border transition-all hover:shadow-md"
+                  :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5 hover:border-primary/20' : 'bg-white border-gray-200']"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-start gap-4">
+                      <div class="w-11 h-11 rounded-xl flex items-center justify-center"
+                        :class="[theme === 'dark' ? 'bg-primary/10 text-primary' : 'bg-yellow-600/10 text-yellow-600']">
+                        <span class="material-symbols-outlined">{{ item.icon || 'code' }}</span>
+                      </div>
+                      <div>
+                        <h5 class="text-sm font-bold text-gray-800 dark:text-white">{{ item.title }}</h5>
+                        <p class="text-xs text-gray-600 dark:text-on-surface-variant/80 mt-1 max-w-xl">{{ item.description }}</p>
+                        <div class="flex flex-wrap gap-1.5 mt-2">
+                          <span 
+                            v-for="tag in item.tags" 
+                            :key="tag"
+                            class="text-[9px] font-semibold px-2 py-0.5 rounded"
+                            :class="[theme === 'dark' ? 'bg-white/5 text-on-surface-variant border border-white/5' : 'bg-gray-100 text-gray-600 border border-gray-200/50']"
+                          >{{ tag }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <button @click="openExpertiseModal(item)" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 hover:text-yellow-600 dark:hover:text-primary transition-all">
+                        <span class="material-symbols-outlined text-sm">edit</span>
+                      </button>
+                      <button @click="deleteExpertise(item.id)" class="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-500 hover:text-red-500 transition-all">
+                        <span class="material-symbols-outlined text-sm">delete</span>
+                      </button>
+                    </div>
                   </div>
+                </div>
+                <div v-if="expertiseItems.filter(e => e.category === cat.id).length === 0" 
+                  class="p-4 rounded-xl border border-dashed text-center text-xs text-gray-400"
+                  :class="[theme === 'dark' ? 'border-white/10' : 'border-gray-200']">
+                  No items in this category yet.
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Main Chart Section -->
-          <div class="p-8 rounded-2xl border transition-colors"
-            :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']"
+          <!-- Expertise Modal -->
+          <div 
+            v-if="showExpertiseModal" 
+            class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            @click.self="showExpertiseModal = false"
           >
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-              <div>
-                <h4 class="text-lg font-bold text-gray-800 dark:text-white font-display-lg">7-Day Visit Trend</h4>
-                <p class="text-xs text-gray-500 dark:text-on-surface-variant/80 mt-1">Audience engagement metrics (Dynamic Mock Database)</p>
-              </div>
-              <div class="flex rounded-lg p-1 border" :class="[theme === 'dark' ? 'bg-background border-white/5' : 'bg-gray-100 border-gray-200']">
-                <button 
-                  @click="chartType = 'daily'"
-                  class="px-4 py-1.5 text-xs font-label-md rounded-md transition-all"
-                  :class="[chartType === 'daily' ? 'bg-yellow-600 dark:bg-primary text-white dark:text-on-primary' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white']"
-                >
-                  Daily
-                </button>
-                <button 
-                  @click="chartType = 'weekly'"
-                  class="px-4 py-1.5 text-xs font-label-md rounded-md transition-all"
-                  :class="[chartType === 'weekly' ? 'bg-yellow-600 dark:bg-primary text-white dark:text-on-primary' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white']"
-                >
-                  Weekly
+            <div class="w-full max-w-lg rounded-2xl border p-6 max-h-[90vh] overflow-y-auto"
+              :class="[theme === 'dark' ? 'bg-surface-container border-white/10' : 'bg-white border-gray-200']">
+              <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white">
+                  {{ editingExpertiseId ? 'Edit Expertise' : 'Add Expertise' }}
+                </h3>
+                <button @click="showExpertiseModal = false" class="p-1 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg">
+                  <span class="material-symbols-outlined">close</span>
                 </button>
               </div>
-            </div>
 
-            <!-- SVG Line Chart (Fully dynamic using current data) -->
-            <div class="h-[250px] w-full relative flex items-end justify-between px-6 pt-4">
-              <svg class="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 200">
-                <defs>
-                  <linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" :stop-color="theme === 'dark' ? 'rgba(246, 190, 57, 0.4)' : 'rgba(202, 138, 4, 0.3)'"></stop>
-                    <stop offset="100%" :stop-color="theme === 'dark' ? 'rgba(246, 190, 57, 0)' : 'rgba(202, 138, 4, 0)'"></stop>
-                  </linearGradient>
-                </defs>
-                <!-- Area Path -->
-                <path :d="chartAreaPath" fill="url(#chartGradient)"></path>
-                <!-- Line Path -->
-                <path :d="chartLinePath" fill="none" :stroke="theme === 'dark' ? '#f6be39' : '#ca8a04'" stroke-width="4" stroke-linecap="round"></path>
-                <!-- Data Points (Circles) -->
-                <circle 
-                  v-for="(point, idx) in chartPoints" 
-                  :key="idx"
-                  :cx="point.x" 
-                  :cy="point.y" 
-                  r="5" 
-                  :fill="theme === 'dark' ? '#f6be39' : '#ca8a04'"
-                  class="cursor-pointer hover:r-7 transition-all"
-                ></circle>
-              </svg>
+              <form @submit.prevent="saveExpertise" class="space-y-4">
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">Title</label>
+                  <input v-model="expertiseForm.title" type="text" required
+                    class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all"
+                    :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']"
+                    placeholder="e.g. Web Development" />
+                </div>
 
-              <!-- Chart labels underneath -->
-              <div class="absolute bottom-0 left-0 right-0 flex justify-between text-[10px] font-semibold text-gray-400 px-6 transform translate-y-6">
-                <span v-for="day in chartLabels" :key="day">{{ day }}</span>
-              </div>
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">Category</label>
+                  <select v-model="expertiseForm.category" required
+                    class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all cursor-pointer"
+                    :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']">
+                    <option v-for="cat in expertiseCategories" :key="cat.id" :value="cat.id">{{ cat.label }}</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">Description</label>
+                  <textarea v-model="expertiseForm.description" rows="3" required
+                    class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all resize-none"
+                    :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']"
+                    placeholder="Brief description of the capability..."></textarea>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">Icon (Material Symbols)</label>
+                  <input v-model="expertiseForm.icon" type="text"
+                    class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all"
+                    :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']"
+                    placeholder="e.g. code, dns, forum, smart_toy" />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">Tags (comma separated)</label>
+                  <input v-model="expertiseForm.tagsInput" type="text" required
+                    class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all"
+                    :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']"
+                    placeholder="e.g. Vue.js, JavaScript, Tailwind CSS" />
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                  <button type="button" @click="showExpertiseModal = false"
+                    class="flex-1 py-3 rounded-lg border text-sm font-semibold transition-all"
+                    :class="[theme === 'dark' ? 'border-white/10 hover:bg-white/5 text-gray-400' : 'border-gray-300 hover:bg-gray-50 text-gray-600']">
+                    Cancel
+                  </button>
+                  <button type="submit"
+                    class="flex-1 py-3 rounded-lg text-sm font-bold transition-all"
+                    :class="[theme === 'dark' ? 'bg-primary text-on-primary hover:opacity-90' : 'bg-yellow-600 text-white hover:bg-yellow-700']">
+                    {{ editingExpertiseId ? 'Update' : 'Save' }}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
 
-          <!-- Recent Visitors Table Section -->
-          <div class="rounded-2xl border overflow-hidden transition-colors"
-            :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']"
+          <!-- Category Modal -->
+          <div 
+            v-if="showCategoryModal" 
+            class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            @click.self="showCategoryModal = false"
           >
-            <div class="p-6 border-b flex justify-between items-center" :class="[theme === 'dark' ? 'border-white/10' : 'border-gray-200']">
-              <div>
-                <h4 class="text-base font-bold text-gray-800 dark:text-white font-display-lg">Recent Visitors</h4>
-                <p class="text-xs text-gray-500 dark:text-on-surface-variant/80 mt-0.5">Showing last 10 session logs inside system</p>
-              </div>
-              <div class="flex gap-3">
-                <button 
-                  @click="generateMockLog"
-                  class="px-3 py-1.5 text-xs font-semibold rounded border border-yellow-600/30 text-yellow-600 dark:border-primary/30 dark:text-primary hover:bg-yellow-600/5 dark:hover:bg-primary/5 transition-all"
-                >
-                  + Add Log
-                </button>
-                <button 
-                  @click="clearAllLogs"
-                  class="px-3 py-1.5 text-xs font-semibold rounded border border-red-500/20 text-red-500 hover:bg-red-500/5 transition-all"
-                >
-                  Clear Logs
+            <div class="w-full max-w-md rounded-2xl border p-6"
+              :class="[theme === 'dark' ? 'bg-surface-container border-white/10' : 'bg-white border-gray-200']">
+              <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white">
+                  {{ editingCategoryIndex >= 0 ? 'Edit Category' : 'Add Category' }}
+                </h3>
+                <button @click="showCategoryModal = false" class="p-1 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg">
+                  <span class="material-symbols-outlined">close</span>
                 </button>
               </div>
-            </div>
-            
-            <div class="overflow-x-auto">
-              <table class="w-full text-left">
-                <thead class="text-[10px] uppercase tracking-wider font-semibold text-gray-400"
-                  :class="[theme === 'dark' ? 'bg-white/5' : 'bg-gray-50']"
-                >
-                  <tr>
-                    <th class="px-8 py-4">IP Address</th>
-                    <th class="px-8 py-4">Browser/OS</th>
-                    <th class="px-8 py-4">Referrer URL</th>
-                    <th class="px-8 py-4">Country</th>
-                    <th class="px-8 py-4 text-right">Time</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y text-xs text-gray-600 dark:text-on-surface-variant/90"
-                  :class="[theme === 'dark' ? 'divide-white/5' : 'divide-gray-150']"
-                >
-                  <tr v-if="logs.length === 0">
-                    <td colspan="5" class="px-8 py-8 text-center text-gray-400">
-                      No logs captured yet. Visit the portfolio page first or click "+ Add Log"!
-                    </td>
-                  </tr>
-                  <tr v-for="log in logs.slice(0, 10)" :key="log.id" class="hover:bg-yellow-600/5 dark:hover:bg-primary/5 transition-colors group">
-                    <td class="px-8 py-5">
-                      <div class="flex items-center gap-3">
-                        <div class="w-2 h-2 rounded-full bg-yellow-600/40 dark:bg-primary/40 group-hover:bg-yellow-600 dark:group-hover:bg-primary transition-colors"></div>
-                        <span class="font-code-sm font-semibold">{{ log.ip }}</span>
-                      </div>
-                    </td>
-                    <td class="px-8 py-5">
-                      <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-base">
-                          {{ log.browser_os.toLowerCase().includes('ios') || log.browser_os.toLowerCase().includes('android') ? 'smartphone' : 'laptop' }}
-                        </span>
-                        <span>{{ log.browser_os }}</span>
-                      </div>
-                    </td>
-                    <td class="px-8 py-5">
-                      <span class="truncate max-w-[200px] block" :title="log.referrer">{{ log.referrer }}</span>
-                    </td>
-                    <td class="px-8 py-5">
-                      <span class="font-semibold">{{ log.country }}</span>
-                    </td>
-                    <td class="px-8 py-5 text-right font-semibold text-gray-400">
-                      {{ log.timestamp }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+
+              <form @submit.prevent="saveCategory" class="space-y-4">
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">Category ID</label>
+                  <input v-model="categoryForm.id" type="text" required :disabled="editingCategoryIndex >= 0"
+                    class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all disabled:opacity-50"
+                    :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']"
+                    placeholder="e.g. devops" />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider mb-2 text-gray-600 dark:text-on-surface-variant">Label</label>
+                  <input v-model="categoryForm.label" type="text" required
+                    class="w-full px-4 py-3 rounded-lg border text-sm focus:outline-none transition-all"
+                    :class="[theme === 'dark' ? 'bg-background border-white/10 focus:border-primary text-white' : 'bg-gray-50 border-gray-300 focus:border-yellow-600 text-gray-900']"
+                    placeholder="e.g. 04. DEVOPS" />
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                  <button type="button" @click="showCategoryModal = false"
+                    class="flex-1 py-3 rounded-lg border text-sm font-semibold transition-all"
+                    :class="[theme === 'dark' ? 'border-white/10 hover:bg-white/5 text-gray-400' : 'border-gray-300 hover:bg-gray-50 text-gray-600']">
+                    Cancel
+                  </button>
+                  <button type="submit"
+                    class="flex-1 py-3 rounded-lg text-sm font-bold transition-all"
+                    :class="[theme === 'dark' ? 'bg-primary text-on-primary hover:opacity-90' : 'bg-yellow-600 text-white hover:bg-yellow-700']">
+                    {{ editingCategoryIndex >= 0 ? 'Update' : 'Save' }}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-          </div> <!-- end analytics/dashboard only -->
         </section>
 
         <!-- Footer -->
@@ -689,7 +719,7 @@ const loginError = ref('')
 const tabs = [
   { name: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
   { name: 'experience', label: 'Experience', icon: 'work' },
-  { name: 'analytics', label: 'Analytics', icon: 'monitoring' },
+  { name: 'expertise', label: 'Expertise', icon: 'psychology' },
   { name: 'settings', label: 'Settings', icon: 'settings' }
 ]
 
@@ -786,7 +816,7 @@ const handleLogin = async () => {
   }
 }
 
-// Log database
+// Log database (kept for dashboard tab)
 const logs = ref([])
 
 // Experience management
@@ -881,6 +911,118 @@ const deleteExperience = (index) => {
     experiences.value.splice(index, 1)
     saveExperiences()
   }
+}
+
+// === Expertise Management ===
+const expertiseItems = ref([])
+const expertiseCategories = ref([])
+const showExpertiseModal = ref(false)
+const editingExpertiseId = ref(null)
+const showCategoryModal = ref(false)
+const editingCategoryIndex = ref(-1)
+const expertiseForm = ref({ title: '', category: 'development', description: '', icon: '', tagsInput: '' })
+const categoryForm = ref({ id: '', label: '' })
+
+const loadExpertise = async () => {
+  try {
+    const res = await fetch(`${API_BASE}/expertise`)
+    if (res.ok) {
+      const data = await res.json()
+      expertiseItems.value = data.expertise || []
+      expertiseCategories.value = data.categories || []
+    }
+  } catch {
+    expertiseItems.value = []
+    expertiseCategories.value = []
+  }
+}
+
+const saveExpertiseToAPI = async () => {
+  try {
+    await fetch(`${API_BASE}/expertise`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken.value}`
+      },
+      body: JSON.stringify({ expertise: expertiseItems.value, categories: expertiseCategories.value })
+    })
+  } catch {
+    console.error('Failed to save expertise')
+  }
+}
+
+const openExpertiseModal = (item = null) => {
+  if (item) {
+    editingExpertiseId.value = item.id
+    expertiseForm.value = {
+      title: item.title,
+      category: item.category,
+      description: item.description,
+      icon: item.icon || '',
+      tagsInput: item.tags.join(', ')
+    }
+  } else {
+    editingExpertiseId.value = null
+    expertiseForm.value = { title: '', category: expertiseCategories.value[0]?.id || 'development', description: '', icon: '', tagsInput: '' }
+  }
+  showExpertiseModal.value = true
+}
+
+const saveExpertise = () => {
+  const newItem = {
+    id: editingExpertiseId.value || Date.now(),
+    category: expertiseForm.value.category,
+    icon: expertiseForm.value.icon || 'code',
+    title: expertiseForm.value.title,
+    description: expertiseForm.value.description,
+    tags: expertiseForm.value.tagsInput.split(',').map(t => t.trim()).filter(t => t)
+  }
+  if (editingExpertiseId.value) {
+    const idx = expertiseItems.value.findIndex(e => e.id === editingExpertiseId.value)
+    if (idx >= 0) expertiseItems.value[idx] = newItem
+  } else {
+    expertiseItems.value.push(newItem)
+  }
+  saveExpertiseToAPI()
+  showExpertiseModal.value = false
+}
+
+const deleteExpertise = (id) => {
+  if (confirm('Delete this expertise item?')) {
+    expertiseItems.value = expertiseItems.value.filter(e => e.id !== id)
+    saveExpertiseToAPI()
+  }
+}
+
+const openCategoryModal = (cat = null, index = -1) => {
+  editingCategoryIndex.value = index
+  if (cat) {
+    categoryForm.value = { id: cat.id, label: cat.label }
+  } else {
+    categoryForm.value = { id: '', label: '' }
+  }
+  showCategoryModal.value = true
+}
+
+const saveCategory = () => {
+  const newCat = { id: categoryForm.value.id.trim(), label: categoryForm.value.label.trim() }
+  if (editingCategoryIndex.value >= 0) {
+    expertiseCategories.value[editingCategoryIndex.value] = newCat
+  } else {
+    expertiseCategories.value.push(newCat)
+  }
+  saveExpertiseToAPI()
+  showCategoryModal.value = false
+}
+
+const deleteCategory = (index) => {
+  const cat = expertiseCategories.value[index]
+  const itemsInCat = expertiseItems.value.filter(e => e.category === cat.id).length
+  if (itemsInCat > 0 && !confirm(`Category has ${itemsInCat} items. Delete category AND its items?`)) return
+  expertiseItems.value = expertiseItems.value.filter(e => e.category !== cat.id)
+  expertiseCategories.value.splice(index, 1)
+  saveExpertiseToAPI()
 }
 
 // Today's visitors count logic (logs that occurred today)
@@ -1030,6 +1172,9 @@ onMounted(() => {
 
   // Load experiences
   loadExperiences()
+
+  // Load expertise
+  loadExpertise()
 
   // Load existing logs or inject initial data
   const storedLogs = localStorage.getItem('visitor_logs')

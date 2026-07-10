@@ -282,7 +282,7 @@
             :class="[theme === 'dark' ? 'bg-black/10 border-white/5' : 'bg-gray-100 border-gray-200']"
           >
             <button 
-              v-for="cat in categories"
+              v-for="cat in expertiseCategories"
               :key="cat.id"
               @click="activeCategory = cat.id"
               class="w-full text-left px-8 py-4 font-code-sm text-xs font-semibold transition-all duration-200 flex items-center justify-between"
@@ -479,8 +479,12 @@ const onLastScrollTop = ref(0)
 
 const activeCategory = ref('development')
 
-// Experience data from localStorage
+// Experience data from API
 const experiences = ref([])
+
+// Expertise data from API
+const expertiseItems = ref([])
+const expertiseCategories = ref([])
 
 const loadExperiences = async () => {
   try {
@@ -490,6 +494,20 @@ const loadExperiences = async () => {
     }
   } catch {
     experiences.value = []
+  }
+}
+
+const loadExpertise = async () => {
+  try {
+    const res = await fetch('/api/expertise')
+    if (res.ok) {
+      const data = await res.json()
+      expertiseItems.value = data.expertise || []
+      expertiseCategories.value = data.categories || []
+    }
+  } catch {
+    expertiseItems.value = []
+    expertiseCategories.value = []
   }
 }
 
@@ -537,62 +555,8 @@ const submitContact = () => {
   }, 3000)
 }
 
-const categories = [
-  { id: 'development', label: '01. DEVELOPMENT' },
-  { id: 'chatbot', label: '02. CHATBOT' },
-  { id: 'database', label: '03. DATABASE' }
-]
-
-const techStack = [
-  // Development
-  {
-    category: 'development',
-    icon: 'code',
-    title: 'Web Development',
-    description: 'Building responsive web applications with modern frontend frameworks.',
-    tags: ['Vue.js', 'React', 'JavaScript', 'Tailwind CSS', 'HTML/CSS']
-  },
-  {
-    category: 'development',
-    icon: 'dns',
-    title: 'APIs & Backend',
-    description: 'Developing RESTful API interfaces and backend services.',
-    tags: ['PHP', 'Laravel', 'Node.js', 'REST APIs']
-  },
-  {
-    category: 'development',
-    icon: 'settings_suggest',
-    title: 'Tools & Version Control',
-    description: 'Managing codebases and ensuring code quality.',
-    tags: ['Git', 'Linux']
-  },
-  // Chatbot
-  {
-    category: 'chatbot',
-    icon: 'forum',
-    title: 'Conversational AI',
-    description: 'Building intelligent chatbot systems with AI-powered conversational flows.',
-    tags: ['Conversational AI', 'Chatbot Development']
-  },
-  {
-    category: 'chatbot',
-    icon: 'smart_toy',
-    title: 'Chatbot Integration',
-    description: 'Developing multi-channel chatbot platforms across WhatsApp, Telegram, Web, and Facebook Messenger.',
-    tags: ['Multi-channel', 'JavaScript', 'REST APIs']
-  },
-  // Database
-  {
-    category: 'database',
-    icon: 'storage',
-    title: 'Database Management',
-    description: 'Designing and optimizing relational databases for web applications.',
-    tags: ['MySQL']
-  }
-]
-
 const activeCategoryItems = computed(() => {
-  return techStack.filter(item => item.category === activeCategory.value)
+  return expertiseItems.value.filter(item => item.category === activeCategory.value)
 })
 
 const logVisit = () => {
@@ -622,6 +586,7 @@ onMounted(() => {
     document.documentElement.classList.remove('dark')
   }
   loadExperiences()
+  loadExpertise()
   logVisit()
   window.addEventListener('scroll', handleScroll)
 })

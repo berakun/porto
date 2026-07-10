@@ -61,9 +61,36 @@ async function initDB() {
       console.log('Default admin user created: berakun/qwerty123')
     }
 
-    // Seed default experiences if empty
-    const [expExisting] = await pool.query('SELECT id FROM portfolio_data WHERE data_key = ?', ['experiences'])
+    // Seed default expertise categories if empty
+    const [catExisting] = await pool.query('SELECT id FROM portfolio_data WHERE data_key = ?', ['expertise_categories'])
+    if (catExisting.length === 0) {
+      const defaultCategories = JSON.stringify([
+        { id: 'development', label: '01. DEVELOPMENT' },
+        { id: 'chatbot', label: '02. CHATBOT' },
+        { id: 'database', label: '03. DATABASE' }
+      ])
+      await pool.query('INSERT INTO portfolio_data (data_key, data_value) VALUES (?, ?)', ['expertise_categories', defaultCategories])
+      console.log('Default expertise categories seeded')
+    }
+
+    // Seed default expertise items if empty
+    const [expExisting] = await pool.query('SELECT id FROM portfolio_data WHERE data_key = ?', ['expertise'])
     if (expExisting.length === 0) {
+      const defaultExpertise = JSON.stringify([
+        { id: 1, category: 'development', icon: 'code', title: 'Web Development', description: 'Building responsive web applications with modern frontend frameworks.', tags: ['Vue.js', 'React', 'JavaScript', 'Tailwind CSS', 'HTML/CSS'] },
+        { id: 2, category: 'development', icon: 'dns', title: 'APIs & Backend', description: 'Developing RESTful API interfaces and backend services.', tags: ['PHP', 'Laravel', 'Node.js', 'REST APIs'] },
+        { id: 3, category: 'development', icon: 'settings_suggest', title: 'Tools & Version Control', description: 'Managing codebases and ensuring code quality.', tags: ['Git', 'Linux'] },
+        { id: 4, category: 'chatbot', icon: 'forum', title: 'Conversational AI', description: 'Building intelligent chatbot systems with AI-powered conversational flows.', tags: ['Conversational AI', 'Chatbot Development'] },
+        { id: 5, category: 'chatbot', icon: 'smart_toy', title: 'Chatbot Integration', description: 'Developing multi-channel chatbot platforms across WhatsApp, Telegram, Web, and Facebook Messenger.', tags: ['Multi-channel', 'JavaScript', 'REST APIs'] },
+        { id: 6, category: 'database', icon: 'storage', title: 'Database Management', description: 'Designing and optimizing relational databases for web applications.', tags: ['MySQL'] }
+      ])
+      await pool.query('INSERT INTO portfolio_data (data_key, data_value) VALUES (?, ?)', ['expertise', defaultExpertise])
+      console.log('Default expertise seeded')
+    }
+
+    // Seed default experiences if empty
+    const [oldExpExisting] = await pool.query('SELECT id FROM portfolio_data WHERE data_key = ?', ['experiences'])
+    if (oldExpExisting.length === 0) {
       const defaultExperiences = JSON.stringify([
         { id: 1, title: 'KCM Interior Design', role: 'Full-stack Developer', description: 'Interior design platform with admin dashboard, GPS attendance system, RAB management, and financial reporting. Built with Vue.js frontend and PHP Laravel backend.', icon: 'business', tags: ['Vue.js', 'Laravel', 'MySQL'] },
         { id: 2, title: 'Chatbot AI Platform', role: 'Chatbot AI Developer @ Botika', description: 'Enterprise chatbot platform with multi-channel integrations (WhatsApp, Telegram, Web, Facebook Messenger). JavaScript-based agentic architecture with custom monitoring dashboards.', icon: 'smart_toy', tags: ['JavaScript', 'Conversational AI', 'Multi-channel'] },
@@ -174,6 +201,45 @@ app.put('/api/experiences', authMiddleware, async (req, res) => {
     res.json({ success: true, count: experiences.length })
   } catch (error) {
     console.error('Update experiences error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// === Expertise Endpoints ===
+
+// GET expertise (public — landing page reads without auth)
+app.get('/api/expertise', async (req, res) => {
+  try {
+    const [items] = await pool.query('SELECT data_value FROM portfolio_data WHERE data_key = ?', ['expertise'])
+    const [cats] = await pool.query('SELECT data_value FROM portfolio_data WHERE data_key = ?', ['expertise_categories'])
+    const expertise = items.length > 0 ? (typeof items[0].data_value === 'string' ? JSON.parse(items[0].data_value) : items[0].data_value) : []
+    const categories = cats.length > 0 ? (typeof cats[0].data_value === 'string' ? JSON.parse(cats[0].data_value) : cats[0].data_value) : []
+    res.json({ expertise, categories })
+  } catch (error) {
+    console.error('Get expertise error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// PUT expertise (auth required — admin saves)
+app.put('/api/expertise', authMiddleware, async (req, res) => {
+  try {
+    const { expertise, categories } = req.body
+    if (Array.isArray(expertise)) {
+      await pool.query(
+        'INSERT INTO portfolio_data (data_key, data_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE data_value = VALUES(data_value)',
+        ['expertise', JSON.stringify(expertise)]
+      )
+    }
+    if (Array.isArray(categories)) {
+      await pool.query(
+        'INSERT INTO portfolio_data (data_key, data_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE data_value = VALUES(data_value)',
+        ['expertise_categories', JSON.stringify(categories)]
+      )
+    }
+    res.json({ success: true })
+  } catch (error) {
+    console.error('Update expertise error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
