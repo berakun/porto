@@ -481,7 +481,7 @@
         <div class="flex flex-col items-center md:items-start">
           <p class="font-display-lg text-xs font-bold text-yellow-600 dark:text-primary">RF | Rifki Firdaus</p>
           <p class="text-[9px] font-code-sm text-gray-400 mt-1 uppercase tracking-wider">
-            © 2024. All rights reserved.
+            © 2026. All rights reserved.
           </p>
         </div>
         <div class="flex gap-8 text-[10px] font-code-sm uppercase tracking-wider font-semibold">

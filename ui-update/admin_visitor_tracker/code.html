@@ -1,14 +1,22 @@
 <!DOCTYPE html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>AETHER | Visitor Tracking Admin Dashboard</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>AETHER | Visitor Tracking Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&amp;family=Inter:wght@400;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -86,25 +94,26 @@
                         "headline-md": ["Montserrat"]
                     },
                     "fontSize": {
-                        "display-lg": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
-                        "code-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
-                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
-                        "headline-lg": ["40px", {"lineHeight": "1.2", "fontWeight": "600"}],
-                        "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
-                        "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
-                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "code-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["40px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }]
                     }
                 },
             },
         }
     </script>
-<style>
+    <style>
         .glass-panel {
             background: rgba(27, 32, 42, 0.7);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
+
         .semi-circle-accent {
             position: absolute;
             top: -150px;
@@ -115,257 +124,297 @@
             border: 2px solid rgba(246, 190, 57, 0.1);
             pointer-events: none;
         }
+
         .bloom-hover:hover {
             box-shadow: 0 0 15px rgba(246, 190, 57, 0.2);
         }
+
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
     </style>
 </head>
+
 <body class="bg-background text-on-background font-body-md min-h-screen selection:bg-primary/30">
-<!-- Sidebar Navigation -->
-<aside class="fixed left-0 h-full w-64 bg-surface-container dark:bg-surface-container-low border-r border-white/5 flex flex-col py-8 z-40 hidden md:flex">
-<div class="px-6 mb-12">
-<h1 class="font-display-lg text-headline-md text-primary tracking-tighter">AETHER</h1>
-<p class="text-on-surface-variant text-[12px] uppercase tracking-widest mt-1 opacity-70">Admin Panel</p>
-</div>
-<nav class="flex-1 space-y-1">
-<a class="flex items-center px-6 py-4 bg-primary/10 text-primary border-r-4 border-primary translate-x-1 duration-200" href="#">
-<span class="material-symbols-outlined mr-4" data-icon="dashboard">dashboard</span>
-<span class="font-label-md">Dashboard</span>
-</a>
-<a class="flex items-center px-6 py-4 text-on-surface-variant hover:bg-white/5 hover:text-primary transition-all duration-200" href="#">
-<span class="material-symbols-outlined mr-4" data-icon="monitoring">monitoring</span>
-<span class="font-label-md text-label-md">Analytics</span>
-</a>
-<a class="flex items-center px-6 py-4 text-on-surface-variant hover:bg-white/5 hover:text-primary transition-all duration-200" href="#">
-<span class="material-symbols-outlined mr-4" data-icon="folder_special">folder_special</span>
-<span class="font-label-md text-label-md">Projects</span>
-</a>
-<a class="flex items-center px-6 py-4 text-on-surface-variant hover:bg-white/5 hover:text-primary transition-all duration-200" href="#">
-<span class="material-symbols-outlined mr-4" data-icon="settings">settings</span>
-<span class="font-label-md text-label-md">Settings</span>
-</a>
-</nav>
-<div class="px-6 mt-auto">
-<div class="p-4 rounded-xl glass-panel mb-6 border-primary/20">
-<p class="text-label-md font-bold text-primary mb-2">System Status</p>
-<div class="flex items-center text-xs text-on-surface-variant">
-<span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
+    <!-- Sidebar Navigation -->
+    <aside
+        class="fixed left-0 h-full w-64 bg-surface-container dark:bg-surface-container-low border-r border-white/5 flex flex-col py-8 z-40 hidden md:flex">
+        <div class="px-6 mb-12">
+            <h1 class="font-display-lg text-headline-md text-primary tracking-tighter">AETHER</h1>
+            <p class="text-on-surface-variant text-[12px] uppercase tracking-widest mt-1 opacity-70">Admin Panel</p>
+        </div>
+        <nav class="flex-1 space-y-1">
+            <a class="flex items-center px-6 py-4 bg-primary/10 text-primary border-r-4 border-primary translate-x-1 duration-200"
+                href="#">
+                <span class="material-symbols-outlined mr-4" data-icon="dashboard">dashboard</span>
+                <span class="font-label-md">Dashboard</span>
+            </a>
+            <a class="flex items-center px-6 py-4 text-on-surface-variant hover:bg-white/5 hover:text-primary transition-all duration-200"
+                href="#">
+                <span class="material-symbols-outlined mr-4" data-icon="monitoring">monitoring</span>
+                <span class="font-label-md text-label-md">Analytics</span>
+            </a>
+            <a class="flex items-center px-6 py-4 text-on-surface-variant hover:bg-white/5 hover:text-primary transition-all duration-200"
+                href="#">
+                <span class="material-symbols-outlined mr-4" data-icon="folder_special">folder_special</span>
+                <span class="font-label-md text-label-md">Projects</span>
+            </a>
+            <a class="flex items-center px-6 py-4 text-on-surface-variant hover:bg-white/5 hover:text-primary transition-all duration-200"
+                href="#">
+                <span class="material-symbols-outlined mr-4" data-icon="settings">settings</span>
+                <span class="font-label-md text-label-md">Settings</span>
+            </a>
+        </nav>
+        <div class="px-6 mt-auto">
+            <div class="p-4 rounded-xl glass-panel mb-6 border-primary/20">
+                <p class="text-label-md font-bold text-primary mb-2">System Status</p>
+                <div class="flex items-center text-xs text-on-surface-variant">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
                     Live Tracking Active
                 </div>
-</div>
-<button class="flex items-center w-full px-6 py-4 text-on-surface-variant hover:text-error transition-all opacity-80 hover:opacity-100">
-<span class="material-symbols-outlined mr-4" data-icon="logout">logout</span>
-<span class="font-label-md text-label-md">Logout</span>
-</button>
-</div>
-</aside>
-<!-- Main Content Area -->
-<main class="md:ml-64 relative min-h-screen overflow-hidden">
-<div class="semi-circle-accent"></div>
-<div class="semi-circle-accent" style="top: 20%; right: -200px; width: 600px; height: 600px; border-color: rgba(246, 190, 57, 0.03);"></div>
-<!-- Header -->
-<header class="sticky top-0 w-full z-30 bg-surface/80 backdrop-blur-xl border-b border-white/10 h-20 px-margin-mobile md:px-margin-desktop flex justify-between items-center">
-<div class="flex items-center gap-4">
-<button class="md:hidden p-2 text-primary">
-<span class="material-symbols-outlined" data-icon="menu">menu</span>
-</button>
-<h2 class="font-headline-md text-headline-md text-primary tracking-tight">Visitor Analytics</h2>
-</div>
-<div class="flex items-center gap-6">
-<button class="p-2 rounded-full text-on-surface-variant hover:text-primary transition-all bloom-hover" id="themeToggle">
-<span class="material-symbols-outlined" data-icon="dark_mode">dark_mode</span>
-</button>
-<div class="flex items-center gap-3 pl-6 border-l border-white/10">
-<div class="text-right hidden sm:block">
-<p class="text-label-md font-bold text-on-surface">Admin User</p>
-<p class="text-[10px] text-on-surface-variant opacity-60">System Oversight</p>
-</div>
-<img alt="Admin Avatar" class="w-10 h-10 rounded-full border border-primary/30" data-alt="A professional headshot of a creative technologist in their 30s with a sharp, modern appearance. The background is a dimly lit office with cool navy and warm gold ambient lighting, matching a premium technical dashboard aesthetic. High-end portrait photography style with shallow depth of field and elegant highlights on the face." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQXwaE7Ye09Us-bsmaAFRfNlcya6V8XUc316kHWmgtyU2ycRiCP2MG-idNplBEC9AJ4xyCGO4zdkqOBb9IpRL8RObo4ERZSbaul3qkRx4OqoarrbDJSqWawKAv38t7tJ5FZE88iRF-Xx_FFyIlAJA74BZWNbfdCmhrKWjiozbTErAPjjudrOEiep30hpNn_7qnSza-1ORZjC6SoSD1ksYFn4cTWPYRgN1XZdtydmLFByQ-yxoaG5Nu32Ri3ZicvcGTcAtCKukt1d8q"/>
-</div>
-</div>
-</header>
-<!-- Dashboard Canvas -->
-<section class="p-margin-mobile md:p-margin-desktop space-y-gutter relative z-10">
-<!-- Summary Cards -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-<!-- Card 1 -->
-<div class="glass-panel p-6 rounded-xl relative overflow-hidden group hover:border-primary/40 transition-colors">
-<div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-<span class="material-symbols-outlined text-8xl" data-icon="group">group</span>
-</div>
-<p class="text-on-surface-variant font-label-md mb-2">Today's Visitors</p>
-<div class="flex items-end gap-3">
-<h3 class="text-headline-lg font-headline-lg text-primary">1,284</h3>
-<span class="text-emerald-500 font-label-md flex items-center mb-1">
-<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+            </div>
+            <button
+                class="flex items-center w-full px-6 py-4 text-on-surface-variant hover:text-error transition-all opacity-80 hover:opacity-100">
+                <span class="material-symbols-outlined mr-4" data-icon="logout">logout</span>
+                <span class="font-label-md text-label-md">Logout</span>
+            </button>
+        </div>
+    </aside>
+    <!-- Main Content Area -->
+    <main class="md:ml-64 relative min-h-screen overflow-hidden">
+        <div class="semi-circle-accent"></div>
+        <div class="semi-circle-accent"
+            style="top: 20%; right: -200px; width: 600px; height: 600px; border-color: rgba(246, 190, 57, 0.03);"></div>
+        <!-- Header -->
+        <header
+            class="sticky top-0 w-full z-30 bg-surface/80 backdrop-blur-xl border-b border-white/10 h-20 px-margin-mobile md:px-margin-desktop flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button class="md:hidden p-2 text-primary">
+                    <span class="material-symbols-outlined" data-icon="menu">menu</span>
+                </button>
+                <h2 class="font-headline-md text-headline-md text-primary tracking-tight">Visitor Analytics</h2>
+            </div>
+            <div class="flex items-center gap-6">
+                <button class="p-2 rounded-full text-on-surface-variant hover:text-primary transition-all bloom-hover"
+                    id="themeToggle">
+                    <span class="material-symbols-outlined" data-icon="dark_mode">dark_mode</span>
+                </button>
+                <div class="flex items-center gap-3 pl-6 border-l border-white/10">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-label-md font-bold text-on-surface">Admin User</p>
+                        <p class="text-[10px] text-on-surface-variant opacity-60">System Oversight</p>
+                    </div>
+                    <img alt="Admin Avatar" class="w-10 h-10 rounded-full border border-primary/30"
+                        data-alt="A professional headshot of a creative technologist in their 30s with a sharp, modern appearance. The background is a dimly lit office with cool navy and warm gold ambient lighting, matching a premium technical dashboard aesthetic. High-end portrait photography style with shallow depth of field and elegant highlights on the face."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQXwaE7Ye09Us-bsmaAFRfNlcya6V8XUc316kHWmgtyU2ycRiCP2MG-idNplBEC9AJ4xyCGO4zdkqOBb9IpRL8RObo4ERZSbaul3qkRx4OqoarrbDJSqWawKAv38t7tJ5FZE88iRF-Xx_FFyIlAJA74BZWNbfdCmhrKWjiozbTErAPjjudrOEiep30hpNn_7qnSza-1ORZjC6SoSD1ksYFn4cTWPYRgN1XZdtydmLFByQ-yxoaG5Nu32Ri3ZicvcGTcAtCKukt1d8q" />
+                </div>
+            </div>
+        </header>
+        <!-- Dashboard Canvas -->
+        <section class="p-margin-mobile md:p-margin-desktop space-y-gutter relative z-10">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+                <!-- Card 1 -->
+                <div
+                    class="glass-panel p-6 rounded-xl relative overflow-hidden group hover:border-primary/40 transition-colors">
+                    <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <span class="material-symbols-outlined text-8xl" data-icon="group">group</span>
+                    </div>
+                    <p class="text-on-surface-variant font-label-md mb-2">Today's Visitors</p>
+                    <div class="flex items-end gap-3">
+                        <h3 class="text-headline-lg font-headline-lg text-primary">1,284</h3>
+                        <span class="text-emerald-500 font-label-md flex items-center mb-1">
+                            <span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
                             +12%
                         </span>
-</div>
-</div>
-<!-- Card 2 -->
-<div class="glass-panel p-6 rounded-xl relative overflow-hidden group hover:border-primary/40 transition-colors">
-<div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-<span class="material-symbols-outlined text-8xl" data-icon="public">public</span>
-</div>
-<p class="text-on-surface-variant font-label-md mb-2">Total Visitors</p>
-<div class="flex items-end gap-3">
-<h3 class="text-headline-lg font-headline-lg text-primary">45.2k</h3>
-<span class="text-on-surface-variant font-label-md mb-1 opacity-60">This Month</span>
-</div>
-</div>
-<!-- Card 3 -->
-<div class="glass-panel p-6 rounded-xl relative overflow-hidden group hover:border-primary/40 transition-colors">
-<div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-<span class="material-symbols-outlined text-8xl" data-icon="flag">flag</span>
-</div>
-<p class="text-on-surface-variant font-label-md mb-2">Top Country</p>
-<div class="flex items-center gap-4">
-<h3 class="text-headline-lg font-headline-lg text-primary">USA</h3>
-<div class="flex flex-col">
-<span class="text-on-surface-variant font-label-md text-xs">32% of Traffic</span>
-<div class="w-24 h-1 bg-white/10 rounded-full mt-1">
-<div class="w-[32%] h-full bg-primary rounded-full"></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Main Chart Section -->
-<div class="glass-panel p-8 rounded-xl">
-<div class="flex justify-between items-center mb-8">
-<div>
-<h4 class="text-headline-md font-headline-md text-on-surface">7-Day Visit Trend</h4>
-<p class="text-on-surface-variant text-body-md opacity-60">Audience engagement over the last week</p>
-</div>
-<div class="flex bg-surface-container-high rounded-lg p-1">
-<button class="px-4 py-1.5 text-xs font-label-md rounded-md bg-primary text-on-primary">Daily</button>
-<button class="px-4 py-1.5 text-xs font-label-md rounded-md text-on-surface-variant hover:text-primary transition-all">Weekly</button>
-</div>
-</div>
-<div class="h-[350px] w-full relative flex items-end justify-between gap-4 px-4">
-<!-- Simulated Line Chart with SVG -->
-<svg class="absolute inset-0 w-full h-full preserve-3d" preserveaspectratio="none" viewbox="0 0 1000 300">
-<defs>
-<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
-<stop offset="0%" stop-color="rgba(246, 190, 57, 0.4)"></stop>
-<stop offset="100%" stop-color="rgba(246, 190, 57, 0)"></stop>
-</lineargradient>
-</defs>
-<path d="M0,250 Q150,100 300,180 T600,80 T1000,120 L1000,300 L0,300 Z" fill="url(#chartGradient)"></path>
-<path d="M0,250 Q150,100 300,180 T600,80 T1000,120" fill="none" stroke="#f6be39" stroke-width="4"></path>
-<!-- Data Points -->
-<circle class="animate-pulse" cx="300" cy="180" fill="#f6be39" r="6"></circle>
-<circle class="animate-pulse" cx="600" cy="80" fill="#f6be39" r="6"></circle>
-</svg>
-<!-- Chart Grid Labels (Placeholder) -->
-<div class="absolute bottom-0 w-full flex justify-between text-[10px] text-on-surface-variant font-label-md px-2 transform translate-y-6">
-<span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
-</div>
-<div class="absolute left-0 h-full flex flex-col justify-between text-[10px] text-on-surface-variant font-label-md transform -translate-x-12">
-<span>2.0k</span><span>1.5k</span><span>1.0k</span><span>0.5k</span><span>0</span>
-</div>
-</div>
-</div>
-<!-- Recent Visitors Table Section -->
-<div class="glass-panel rounded-xl overflow-hidden">
-<div class="p-6 border-b border-white/10 flex justify-between items-center">
-<h4 class="text-headline-md font-headline-md text-on-surface">Recent Visitors</h4>
-<button class="text-primary font-label-md text-sm hover:underline">Export CSV</button>
-</div>
-<div class="overflow-x-auto">
-<table class="w-full text-left">
-<thead class="bg-surface-container-high/50 text-on-surface-variant font-label-md text-xs uppercase tracking-widest">
-<tr>
-<th class="px-8 py-4">IP Address</th>
-<th class="px-8 py-4">Browser/OS</th>
-<th class="px-8 py-4">Referrer</th>
-<th class="px-8 py-4 text-right">Time</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-white/5">
-<tr class="hover:bg-white/5 transition-colors group">
-<td class="px-8 py-5">
-<div class="flex items-center gap-3">
-<div class="w-2 h-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors"></div>
-<span class="font-code-sm text-body-md">192.168.1.42</span>
-</div>
-</td>
-<td class="px-8 py-5">
-<div class="flex items-center gap-2 text-on-surface-variant">
-<span class="material-symbols-outlined text-lg" data-icon="terminal">terminal</span>
-<span class="text-sm">Chrome / macOS</span>
-</div>
-</td>
-<td class="px-8 py-5">
-<span class="text-sm text-on-surface-variant truncate max-w-[200px] block">google.com/search?q=aether...</span>
-</td>
-<td class="px-8 py-5 text-right">
-<span class="text-xs text-on-surface-variant opacity-60">2 mins ago</span>
-</td>
-</tr>
-<tr class="hover:bg-white/5 transition-colors group">
-<td class="px-8 py-5">
-<div class="flex items-center gap-3">
-<div class="w-2 h-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors"></div>
-<span class="font-code-sm text-body-md">74.125.22.101</span>
-</div>
-</td>
-<td class="px-8 py-5">
-<div class="flex items-center gap-2 text-on-surface-variant">
-<span class="material-symbols-outlined text-lg" data-icon="smartphone">smartphone</span>
-<span class="text-sm">Safari / iOS</span>
-</div>
-</td>
-<td class="px-8 py-5">
-<span class="text-sm text-on-surface-variant truncate max-w-[200px] block">linkedin.com/feed/</span>
-</td>
-<td class="px-8 py-5 text-right">
-<span class="text-xs text-on-surface-variant opacity-60">14 mins ago</span>
-</td>
-</tr>
-<tr class="hover:bg-white/5 transition-colors group">
-<td class="px-8 py-5">
-<div class="flex items-center gap-3">
-<div class="w-2 h-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors"></div>
-<span class="font-code-sm text-body-md">203.0.113.195</span>
-</div>
-</td>
-<td class="px-8 py-5">
-<div class="flex items-center gap-2 text-on-surface-variant">
-<span class="material-symbols-outlined text-lg" data-icon="laptop">laptop</span>
-<span class="text-sm">Firefox / Linux</span>
-</div>
-</td>
-<td class="px-8 py-5">
-<span class="text-sm text-on-surface-variant">Direct Access</span>
-</td>
-<td class="px-8 py-5 text-right">
-<span class="text-xs text-on-surface-variant opacity-60">32 mins ago</span>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</section>
-<!-- Footer -->
-<footer class="mt-auto py-12 px-margin-desktop border-t border-white/10 flex flex-col md:flex-row justify-between items-center bg-surface-container-lowest">
-<p class="font-label-md text-label-md text-on-surface-variant opacity-60">© 2024 Aether Portfolio. All rights reserved.</p>
-<div class="flex gap-8 mt-4 md:mt-0">
-<a class="text-on-surface-variant hover:text-primary transition-all hover:scale-110" href="#">Instagram</a>
-<a class="text-on-surface-variant hover:text-primary transition-all hover:scale-110" href="#">LinkedIn</a>
-<a class="text-on-surface-variant hover:text-primary transition-all hover:scale-110" href="#">GitHub</a>
-</div>
-</footer>
-</main>
-<script>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div
+                    class="glass-panel p-6 rounded-xl relative overflow-hidden group hover:border-primary/40 transition-colors">
+                    <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <span class="material-symbols-outlined text-8xl" data-icon="public">public</span>
+                    </div>
+                    <p class="text-on-surface-variant font-label-md mb-2">Total Visitors</p>
+                    <div class="flex items-end gap-3">
+                        <h3 class="text-headline-lg font-headline-lg text-primary">45.2k</h3>
+                        <span class="text-on-surface-variant font-label-md mb-1 opacity-60">This Month</span>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div
+                    class="glass-panel p-6 rounded-xl relative overflow-hidden group hover:border-primary/40 transition-colors">
+                    <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <span class="material-symbols-outlined text-8xl" data-icon="flag">flag</span>
+                    </div>
+                    <p class="text-on-surface-variant font-label-md mb-2">Top Country</p>
+                    <div class="flex items-center gap-4">
+                        <h3 class="text-headline-lg font-headline-lg text-primary">USA</h3>
+                        <div class="flex flex-col">
+                            <span class="text-on-surface-variant font-label-md text-xs">32% of Traffic</span>
+                            <div class="w-24 h-1 bg-white/10 rounded-full mt-1">
+                                <div class="w-[32%] h-full bg-primary rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Main Chart Section -->
+            <div class="glass-panel p-8 rounded-xl">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h4 class="text-headline-md font-headline-md text-on-surface">7-Day Visit Trend</h4>
+                        <p class="text-on-surface-variant text-body-md opacity-60">Audience engagement over the last
+                            week</p>
+                    </div>
+                    <div class="flex bg-surface-container-high rounded-lg p-1">
+                        <button
+                            class="px-4 py-1.5 text-xs font-label-md rounded-md bg-primary text-on-primary">Daily</button>
+                        <button
+                            class="px-4 py-1.5 text-xs font-label-md rounded-md text-on-surface-variant hover:text-primary transition-all">Weekly</button>
+                    </div>
+                </div>
+                <div class="h-[350px] w-full relative flex items-end justify-between gap-4 px-4">
+                    <!-- Simulated Line Chart with SVG -->
+                    <svg class="absolute inset-0 w-full h-full preserve-3d" preserveaspectratio="none"
+                        viewbox="0 0 1000 300">
+                        <defs>
+                            <lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+                                <stop offset="0%" stop-color="rgba(246, 190, 57, 0.4)"></stop>
+                                <stop offset="100%" stop-color="rgba(246, 190, 57, 0)"></stop>
+                            </lineargradient>
+                        </defs>
+                        <path d="M0,250 Q150,100 300,180 T600,80 T1000,120 L1000,300 L0,300 Z"
+                            fill="url(#chartGradient)"></path>
+                        <path d="M0,250 Q150,100 300,180 T600,80 T1000,120" fill="none" stroke="#f6be39"
+                            stroke-width="4"></path>
+                        <!-- Data Points -->
+                        <circle class="animate-pulse" cx="300" cy="180" fill="#f6be39" r="6"></circle>
+                        <circle class="animate-pulse" cx="600" cy="80" fill="#f6be39" r="6"></circle>
+                    </svg>
+                    <!-- Chart Grid Labels (Placeholder) -->
+                    <div
+                        class="absolute bottom-0 w-full flex justify-between text-[10px] text-on-surface-variant font-label-md px-2 transform translate-y-6">
+                        <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+                    </div>
+                    <div
+                        class="absolute left-0 h-full flex flex-col justify-between text-[10px] text-on-surface-variant font-label-md transform -translate-x-12">
+                        <span>2.0k</span><span>1.5k</span><span>1.0k</span><span>0.5k</span><span>0</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Recent Visitors Table Section -->
+            <div class="glass-panel rounded-xl overflow-hidden">
+                <div class="p-6 border-b border-white/10 flex justify-between items-center">
+                    <h4 class="text-headline-md font-headline-md text-on-surface">Recent Visitors</h4>
+                    <button class="text-primary font-label-md text-sm hover:underline">Export CSV</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead
+                            class="bg-surface-container-high/50 text-on-surface-variant font-label-md text-xs uppercase tracking-widest">
+                            <tr>
+                                <th class="px-8 py-4">IP Address</th>
+                                <th class="px-8 py-4">Browser/OS</th>
+                                <th class="px-8 py-4">Referrer</th>
+                                <th class="px-8 py-4 text-right">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            <tr class="hover:bg-white/5 transition-colors group">
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-2 h-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors">
+                                        </div>
+                                        <span class="font-code-sm text-body-md">192.168.1.42</span>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center gap-2 text-on-surface-variant">
+                                        <span class="material-symbols-outlined text-lg"
+                                            data-icon="terminal">terminal</span>
+                                        <span class="text-sm">Chrome / macOS</span>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <span
+                                        class="text-sm text-on-surface-variant truncate max-w-[200px] block">google.com/search?q=aether...</span>
+                                </td>
+                                <td class="px-8 py-5 text-right">
+                                    <span class="text-xs text-on-surface-variant opacity-60">2 mins ago</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-white/5 transition-colors group">
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-2 h-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors">
+                                        </div>
+                                        <span class="font-code-sm text-body-md">74.125.22.101</span>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center gap-2 text-on-surface-variant">
+                                        <span class="material-symbols-outlined text-lg"
+                                            data-icon="smartphone">smartphone</span>
+                                        <span class="text-sm">Safari / iOS</span>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <span
+                                        class="text-sm text-on-surface-variant truncate max-w-[200px] block">linkedin.com/feed/</span>
+                                </td>
+                                <td class="px-8 py-5 text-right">
+                                    <span class="text-xs text-on-surface-variant opacity-60">14 mins ago</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-white/5 transition-colors group">
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-2 h-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors">
+                                        </div>
+                                        <span class="font-code-sm text-body-md">203.0.113.195</span>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center gap-2 text-on-surface-variant">
+                                        <span class="material-symbols-outlined text-lg" data-icon="laptop">laptop</span>
+                                        <span class="text-sm">Firefox / Linux</span>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <span class="text-sm text-on-surface-variant">Direct Access</span>
+                                </td>
+                                <td class="px-8 py-5 text-right">
+                                    <span class="text-xs text-on-surface-variant opacity-60">32 mins ago</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        <!-- Footer -->
+        <footer
+            class="mt-auto py-12 px-margin-desktop border-t border-white/10 flex flex-col md:flex-row justify-between items-center bg-surface-container-lowest">
+            <p class="font-label-md text-label-md text-on-surface-variant opacity-60">© 2026 Aether Portfolio. All
+                rights reserved.</p>
+            <div class="flex gap-8 mt-4 md:mt-0">
+                <a class="text-on-surface-variant hover:text-primary transition-all hover:scale-110"
+                    href="#">Instagram</a>
+                <a class="text-on-surface-variant hover:text-primary transition-all hover:scale-110"
+                    href="#">LinkedIn</a>
+                <a class="text-on-surface-variant hover:text-primary transition-all hover:scale-110" href="#">GitHub</a>
+            </div>
+        </footer>
+    </main>
+    <script>
         // Theme Toggle Logic
         const themeToggle = document.getElementById('themeToggle');
         const html = document.documentElement;
-        
+
         themeToggle.addEventListener('click', () => {
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
@@ -395,4 +444,6 @@
             }
         });
     </script>
-</body></html>
+</body>
+
+</html>
