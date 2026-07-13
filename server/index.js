@@ -26,7 +26,8 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD || 'qwerty123',
   database: process.env.DB_NAME || 'porto',
   waitForConnections: true,
-  connectionLimit: 5
+  connectionLimit: 5,
+  dateStrings: true // ← Return DATE/DATETIME as strings, prevent UTC timezone shift
 })
 
 // Initialize database and tables
@@ -242,13 +243,20 @@ app.post('/api/work-tracing', authMiddleware, async (req, res) => {
   try {
     const { title, company, type, location, start_date, end_date, is_current, description, tags } = req.body
     if (!title || !company || !start_date) return res.status(400).json({ error: 'title, company, start_date required' })
-    const tagsJson = JSON.stringify(tags || [])
+    // Format dates for MySQL (YYYY-MM-DD)
+    const formatDate = (d) => {
+      if (!d) return null
+      if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) return d
+      const date = new Date(d)
+      return isNaN(date.getTime()) ? null : date.toISOString().split('T')[0]
+    }
+    const tagsJson = JSON.stringify(Array.isArray(tags) ? tags : (tags || []))
     const [result] = await pool.query(
       'INSERT INTO work_tracing (title, company, type, location, start_date, end_date, is_current, description, tags, sort_order) VALUES (?,?,?,?,?,?,?,?,?,0)',
-      [title, company, type||'full-time', location||'', start_date, end_date||null, is_current||false, description||'', tagsJson]
+      [title, company, type||'full-time', location||'', formatDate(start_date), formatDate(end_date), is_current||false, description||'', tagsJson]
     )
     const [rows] = await pool.query('SELECT * FROM work_tracing WHERE id = ?', [result.insertId])
-    rows[0].tags = JSON.parse(rows[0].tags || '[]')
+    rows[0].tags = typeof rows[0].tags === 'string' ? JSON.parse(rows[0].tags || '[]') : (Array.isArray(rows[0].tags) ? rows[0].tags : [])
     res.json({ success: true, item: rows[0] })
   } catch (error) {
     console.error('Add work tracing error:', error)
@@ -260,14 +268,21 @@ app.put('/api/work-tracing/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params
     const { title, company, type, location, start_date, end_date, is_current, description, tags, sort_order } = req.body
-    const tagsJson = JSON.stringify(tags || [])
+    // Format dates for MySQL (YYYY-MM-DD)
+    const formatDate = (d) => {
+      if (!d) return null
+      if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) return d
+      const date = new Date(d)
+      return isNaN(date.getTime()) ? null : date.toISOString().split('T')[0]
+    }
+    const tagsJson = JSON.stringify(Array.isArray(tags) ? tags : (tags || []))
     await pool.query(
       'UPDATE work_tracing SET title=?, company=?, type=?, location=?, start_date=?, end_date=?, is_current=?, description=?, tags=?, sort_order=? WHERE id=?',
-      [title, company, type||'full-time', location||'', start_date, end_date||null, is_current||false, description||'', tagsJson, sort_order||0, id]
+      [title, company, type||'full-time', location||'', formatDate(start_date), formatDate(end_date), is_current||false, description||'', tagsJson, sort_order||0, id]
     )
     const [rows] = await pool.query('SELECT * FROM work_tracing WHERE id = ?', [id])
     if (rows.length === 0) return res.status(404).json({ error: 'Not found' })
-    rows[0].tags = JSON.parse(rows[0].tags || '[]')
+    rows[0].tags = typeof rows[0].tags === 'string' ? JSON.parse(rows[0].tags || '[]') : (Array.isArray(rows[0].tags) ? rows[0].tags : [])
     res.json({ success: true, item: rows[0] })
   } catch (error) {
     console.error('Update work tracing error:', error)

@@ -1229,7 +1229,20 @@ const loadWorkItems = async () => {
 const openWorkForm = (item = null) => {
   editingWork.value = item
   if (item) {
-    workForm.value = { ...item, tags: item.tags ? item.tags.join(', ') : '' }
+    // Format dates for date input (YYYY-MM-DD)
+    const formatDate = (d) => {
+      if (!d) return ''
+      if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) return d
+      const date = new Date(d)
+      return isNaN(date.getTime()) ? '' : date.toISOString().split('T')[0]
+    }
+    workForm.value = {
+      ...item,
+      start_date: formatDate(item.start_date),
+      end_date: formatDate(item.end_date),
+      tags: item.tags ? item.tags.join(', ') : '',
+      is_current: Boolean(item.is_current)
+    }
   } else {
     workForm.value = { title: '', company: '', type: 'full-time', location: '', start_date: '', end_date: '', is_current: false, description: '', tags: '' }
   }
