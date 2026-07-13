@@ -108,7 +108,7 @@
           v-if="mobileMenuOpen"
           class="md:hidden absolute top-full left-0 right-0 border-b shadow-xl z-40"
           :class="[
-            theme === 'dark' ? 'bg-[#0b0f17]/98 border-white/10 backdrop-blur-xl' : 'bg-white/98 border-gray-200 backdrop-blur-xl'
+            theme === 'dark' ? 'bg-[#0b0f17] border-white/10 backdrop-blur-xl' : 'bg-white border-gray-200 backdrop-blur-xl'
           ]"
         >
           <div class="container mx-auto px-6 py-4 flex flex-col gap-1">

@@ -221,21 +221,15 @@
             <!-- Date Range Filter -->
             <div class="p-4 rounded-2xl border flex flex-wrap items-center gap-4"
               :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']">
-              <span class="material-symbols-outlined text-yellow-600 dark:text-primary">calendar_month</span>
-              <div class="flex items-center gap-2">
-                <label class="text-xs font-semibold text-gray-500 dark:text-on-surface-variant">From:</label>
-                <input type="date" v-model="analyticsStartDate" 
-                  class="px-3 py-1.5 text-xs rounded-lg border bg-gray-50 dark:bg-[#0b0f17] border-gray-200 dark:border-white/10 text-gray-800 dark:text-white focus:border-yellow-600 dark:focus:border-primary focus:outline-none" />
-              </div>
-              <div class="flex items-center gap-2">
-                <label class="text-xs font-semibold text-gray-500 dark:text-on-surface-variant">To:</label>
-                <input type="date" v-model="analyticsEndDate" 
-                  class="px-3 py-1.5 text-xs rounded-lg border bg-gray-50 dark:bg-[#0b0f17] border-gray-200 dark:border-white/10 text-gray-800 dark:text-white focus:border-yellow-600 dark:focus:border-primary focus:outline-none" />
-              </div>
-              <button @click="loadAnalytics" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-yellow-600 dark:bg-primary text-white hover:opacity-90 transition-all flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm">filter_alt</span>
-                Apply
-              </button>
+              <DateRangePicker
+                :startDate="analyticsStartDate"
+                :endDate="analyticsEndDate"
+                align="left"
+                :theme="theme"
+                @update:startDate="analyticsStartDate = $event"
+                @update:endDate="analyticsEndDate = $event"
+                @change="loadAnalytics"
+              />
               <button v-if="analyticsStartDate || analyticsEndDate" @click="clearDateFilter" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-300 dark:border-white/10 text-gray-500 dark:text-on-surface-variant hover:bg-gray-100 dark:hover:bg-white/5 transition-all flex items-center gap-1">
                 <span class="material-symbols-outlined text-sm">clear_all</span>
                 Clear
@@ -377,6 +371,7 @@
                 <table class="w-full text-left">
                   <thead class="text-[10px] uppercase tracking-wider font-semibold text-gray-400" :class="[theme === 'dark' ? 'bg-white/5' : 'bg-gray-50']">
                     <tr>
+                      <th class="px-6 py-4">Time</th>
                       <th class="px-6 py-4">IP</th>
                       <th class="px-6 py-4">Country</th>
                       <th class="px-6 py-4">City</th>
@@ -384,7 +379,6 @@
                       <th class="px-6 py-4">Browser</th>
                       <th class="px-6 py-4">OS</th>
                       <th class="px-6 py-4">Referrer</th>
-                      <th class="px-6 py-4 text-right">Time</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y text-xs text-gray-600 dark:text-on-surface-variant/90" :class="[theme === 'dark' ? 'divide-white/5' : 'divide-gray-150']">
@@ -392,6 +386,7 @@
                       <td colspan="8" class="px-6 py-8 text-center text-gray-400">No visitors yet. Share your portfolio link!</td>
                     </tr>
                     <tr v-for="v in analyticsData.recent" :key="v.id" class="hover:bg-yellow-600/5 dark:hover:bg-primary/5 transition-colors">
+                      <td class="px-6 py-4 text-gray-400 whitespace-nowrap font-code-sm">{{ formatTime(v.created_at) }}</td>
                       <td class="px-6 py-4 font-code-sm font-semibold whitespace-nowrap">{{ v.ip }}</td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <span class="mr-1.5">{{ countryFlag(v.country) }}</span>{{ v.country }}
@@ -401,7 +396,6 @@
                       <td class="px-6 py-4">{{ v.browser }}</td>
                       <td class="px-6 py-4">{{ v.os }}</td>
                       <td class="px-6 py-4 max-w-[120px] truncate" :title="v.referrer">{{ v.referrer || 'Direct' }}</td>
-                      <td class="px-6 py-4 text-right text-gray-400 whitespace-nowrap">{{ formatTime(v.created_at) }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1071,6 +1065,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import DateRangePicker from '../components/DateRangePicker.vue'
 
 const API_BASE = '/api'
 
