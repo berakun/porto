@@ -218,6 +218,30 @@
           <!-- Dashboard (Real Analytics) -->
           <div v-if="activeTab === 'dashboard'" class="space-y-8">
 
+            <!-- Date Range Filter -->
+            <div class="p-4 rounded-2xl border flex flex-wrap items-center gap-4"
+              :class="[theme === 'dark' ? 'bg-surface-container/70 border-white/5' : 'bg-white border-gray-200 shadow-sm']">
+              <span class="material-symbols-outlined text-yellow-600 dark:text-primary">calendar_month</span>
+              <div class="flex items-center gap-2">
+                <label class="text-xs font-semibold text-gray-500 dark:text-on-surface-variant">From:</label>
+                <input type="date" v-model="analyticsStartDate" 
+                  class="px-3 py-1.5 text-xs rounded-lg border bg-gray-50 dark:bg-[#0b0f17] border-gray-200 dark:border-white/10 text-gray-800 dark:text-white focus:border-yellow-600 dark:focus:border-primary focus:outline-none" />
+              </div>
+              <div class="flex items-center gap-2">
+                <label class="text-xs font-semibold text-gray-500 dark:text-on-surface-variant">To:</label>
+                <input type="date" v-model="analyticsEndDate" 
+                  class="px-3 py-1.5 text-xs rounded-lg border bg-gray-50 dark:bg-[#0b0f17] border-gray-200 dark:border-white/10 text-gray-800 dark:text-white focus:border-yellow-600 dark:focus:border-primary focus:outline-none" />
+              </div>
+              <button @click="loadAnalytics" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-yellow-600 dark:bg-primary text-white hover:opacity-90 transition-all flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">filter_alt</span>
+                Apply
+              </button>
+              <button v-if="analyticsStartDate || analyticsEndDate" @click="clearDateFilter" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-300 dark:border-white/10 text-gray-500 dark:text-on-surface-variant hover:bg-gray-100 dark:hover:bg-white/5 transition-all flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">clear_all</span>
+                Clear
+              </button>
+            </div>
+
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div class="p-6 rounded-2xl border relative overflow-hidden group hover:border-yellow-600/40 dark:hover:border-primary/40 transition-colors"
@@ -1167,10 +1191,18 @@ const handleLogin = async () => {
 
 // === Real Analytics ===
 const analyticsData = ref({})
+const analyticsStartDate = ref('')
+const analyticsEndDate = ref('')
 
 const loadAnalytics = async () => {
   try {
-    const res = await fetch(`${API_BASE}/analytics`, {
+    let url = `${API_BASE}/analytics`
+    const params = []
+    if (analyticsStartDate.value) params.push(`start_date=${analyticsStartDate.value}`)
+    if (analyticsEndDate.value) params.push(`end_date=${analyticsEndDate.value}`)
+    if (params.length) url += '?' + params.join('&')
+    
+    const res = await fetch(url, {
       headers: { 'Authorization': `Bearer ${authToken.value}` }
     })
     if (res.ok) {
@@ -1179,6 +1211,12 @@ const loadAnalytics = async () => {
   } catch {
     analyticsData.value = {}
   }
+}
+
+const clearDateFilter = () => {
+  analyticsStartDate.value = ''
+  analyticsEndDate.value = ''
+  loadAnalytics()
 }
 
 const contactMessages = ref([])

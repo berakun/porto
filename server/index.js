@@ -413,47 +413,78 @@ app.post('/api/track', async (req, res) => {
 })
 
 // GET /api/analytics — auth required, returns aggregated stats
+// Optional query: ?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD
 app.get('/api/analytics', authMiddleware, async (req, res) => {
   try {
-    // Today's visitors (unique IPs)
+    const { start_date, end_date } = req.query
+    let dateFilter = ''
+    let dateParams = []
+    
+    if (start_date && end_date) {
+      dateFilter = ' WHERE created_at >= ? AND created_at <= ?'
+      dateParams = [start_date + ' 00:00:00', end_date + ' 23:59:59']
+    } else if (start_date) {
+      dateFilter = ' WHERE created_at >= ?'
+      dateParams = [start_date + ' 00:00:00']
+    } else if (end_date) {
+      dateFilter = ' WHERE created_at <= ?'
+      dateParams = [end_date + ' 23:59:59']
+    }
+
+    // Today's visitors (unique IPs) - always today regardless of filter
     const [todayRows] = await pool.query(
       "SELECT COUNT(DISTINCT ip) as count FROM visitor_logs WHERE DATE(created_at) = CURDATE()"
     )
 
-    // Total visits
-    const [totalVisits] = await pool.query('SELECT COUNT(*) as count FROM visitor_logs')
+    // Total visits (with optional date filter)
+    const [totalVisits] = await pool.query(
+      'SELECT COUNT(*) as count FROM visitor_logs' + dateFilter, dateParams
+    )
 
-    // Unique IPs ever
-    const [uniqueIPs] = await pool.query('SELECT COUNT(DISTINCT ip) as count FROM visitor_logs')
+    // Unique IPs (with optional date filter)
+    const [uniqueIPs] = await pool.query(
+      'SELECT COUNT(DISTINCT ip) as count FROM visitor_logs' + dateFilter, dateParams
+    )
 
-    // Country breakdown
+    // Country breakdown (with optional date filter)
     const [countries] = await pool.query(
-      'SELECT country, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs WHERE country != "" GROUP BY country ORDER BY visits DESC LIMIT 20'
+      'SELECT country, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs' + 
+      (dateFilter ? dateFilter + ' AND country != ""' : ' WHERE country != ""') + 
+      ' GROUP BY country ORDER BY visits DESC LIMIT 20', dateParams
     )
 
-    // Browser breakdown
+    // Browser breakdown (with optional date filter)
     const [browsers] = await pool.query(
-      'SELECT browser, COUNT(*) as count FROM visitor_logs WHERE browser != "" GROUP BY browser ORDER BY count DESC'
+      'SELECT browser, COUNT(*) as count FROM visitor_logs' + 
+      (dateFilter ? dateFilter + ' AND browser != ""' : ' WHERE browser != ""') + 
+      ' GROUP BY browser ORDER BY count DESC', dateParams
     )
 
-    // OS breakdown
+    // OS breakdown (with optional date filter)
     const [osList] = await pool.query(
-      'SELECT os, COUNT(*) as count FROM visitor_logs WHERE os != "" GROUP BY os ORDER BY count DESC'
+      'SELECT os, COUNT(*) as count FROM visitor_logs' + 
+      (dateFilter ? dateFilter + ' AND os != ""' : ' WHERE os != ""') + 
+      ' GROUP BY os ORDER BY count DESC', dateParams
     )
 
-    // Referrer breakdown
+    // Referrer breakdown (with optional date filter)
     const [referrers] = await pool.query(
-      'SELECT referrer, COUNT(*) as count FROM visitor_logs WHERE referrer != "" AND referrer != "Direct" GROUP BY referrer ORDER BY count DESC LIMIT 10'
+      'SELECT referrer, COUNT(*) as count FROM visitor_logs' + 
+      (dateFilter ? dateFilter + ' AND referrer != "" AND referrer != "Direct"' : ' WHERE referrer != "" AND referrer != "Direct"') + 
+      ' GROUP BY referrer ORDER BY count DESC LIMIT 10', dateParams
     )
 
-    // Last 7 days daily visits
+    // Daily visits (with optional date filter, or last 7 days by default)
     const [dailyVisits] = await pool.query(
-      "SELECT DATE(created_at) as date, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(created_at) ORDER BY date"
+      dateFilter
+        ? "SELECT DATE(created_at) as date, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs" + dateFilter + " GROUP BY DATE(created_at) ORDER BY date"
+        : "SELECT DATE(created_at) as date, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(created_at) ORDER BY date"
+      , dateParams
     )
 
-    // Recent visitors (last 50)
+    // Recent visitors (with optional date filter)
     const [recent] = await pool.query(
-      'SELECT ip, country, city, isp, browser, os, referrer, page, created_at FROM visitor_logs ORDER BY created_at DESC LIMIT 50'
+      'SELECT ip, country, city, isp, browser, os, referrer, page, created_at FROM visitor_logs' + dateFilter + ' ORDER BY created_at DESC LIMIT 50', dateParams
     )
 
     res.json({
