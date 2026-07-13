@@ -392,10 +392,10 @@
                         <span class="mr-1.5">{{ countryFlag(v.country) }}</span>{{ v.country }}
                       </td>
                       <td class="px-6 py-4">{{ v.city || '—' }}</td>
-                      <td class="px-6 py-4 text-[10px] max-w-[120px] truncate" :title="v.isp">{{ v.isp || '—' }}</td>
+                      <td class="px-6 py-4 text-[10px] max-w-[160px] truncate" :title="v.isp">{{ v.isp || '—' }}</td>
                       <td class="px-6 py-4">{{ v.browser }}</td>
                       <td class="px-6 py-4">{{ v.os }}</td>
-                      <td class="px-6 py-4 max-w-[120px] truncate" :title="v.referrer">{{ v.referrer || 'Direct' }}</td>
+                      <td class="px-6 py-4 text-xs whitespace-nowrap">{{ v.referrer || 'Direct' }}</td>
                     </tr>
                   </tbody>
                 </table>
