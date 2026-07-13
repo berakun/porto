@@ -1635,7 +1635,7 @@ const chartAreaPath = computed(() => {
 const handleLogout = () => {
   isAuthenticated.value = false
   authToken.value = null
-  localStorage.removeItem('admin_session')
+  sessionStorage.removeItem('admin_token')
 }
 
 // Simulated logs generator
