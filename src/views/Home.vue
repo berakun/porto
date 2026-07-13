@@ -24,8 +24,8 @@
           </div>
         </div>
 
-        <!-- Navigation Links -->
-        <div class="flex items-center gap-6 md:gap-10">
+        <!-- Desktop Navigation Links -->
+        <div class="hidden md:flex items-center gap-6 md:gap-10">
           <button
             type="button"
             @click="scrollToSection('hero')"
@@ -74,7 +74,107 @@
             </span>
           </button>
         </div>
+
+        <!-- Mobile: Hamburger + Theme Toggle -->
+        <div class="flex md:hidden items-center gap-3">
+          <button
+            type="button"
+            @click="toggleTheme"
+            class="p-2 rounded-full border border-gray-200 dark:border-white/10 text-gray-600 dark:text-on-surface-variant hover:text-yellow-600 dark:hover:text-primary hover:border-yellow-600 dark:hover:border-primary transition-all"
+            aria-label="Toggle Theme"
+          >
+            <span class="material-symbols-outlined block text-base">
+              {{ theme === 'dark' ? 'light_mode' : 'dark_mode' }}
+            </span>
+          </button>
+          <button
+            type="button"
+            @click="mobileMenuOpen = !mobileMenuOpen"
+            class="p-2 rounded-lg border border-gray-200 dark:border-white/10 text-gray-600 dark:text-on-surface-variant hover:text-yellow-600 dark:hover:text-primary transition-all"
+            aria-label="Toggle Menu"
+          >
+            <div class="w-5 h-4 flex flex-col justify-between">
+              <span class="block h-[2px] rounded-full bg-current transition-all duration-300" :class="mobileMenuOpen ? 'rotate-45 translate-y-[7px]' : ''"></span>
+              <span class="block h-[2px] rounded-full bg-current transition-all duration-300" :class="mobileMenuOpen ? 'opacity-0 scale-x-0' : ''"></span>
+              <span class="block h-[2px] rounded-full bg-current transition-all duration-300" :class="mobileMenuOpen ? '-rotate-45 -translate-y-[7px]' : ''"></span>
+            </div>
+          </button>
+        </div>
       </div>
+
+      <!-- Mobile Dropdown Menu -->
+      <transition name="dropdown">
+        <div
+          v-if="mobileMenuOpen"
+          class="md:hidden absolute top-full left-0 right-0 border-b shadow-xl z-40"
+          :class="[
+            theme === 'dark' ? 'bg-[#0b0f17]/98 border-white/10 backdrop-blur-xl' : 'bg-white/98 border-gray-200 backdrop-blur-xl'
+          ]"
+        >
+          <div class="container mx-auto px-6 py-4 flex flex-col gap-1">
+            <button
+              type="button"
+              @click="scrollToSection('hero'); mobileMenuOpen = false"
+              class="w-full text-left px-4 py-3 rounded-lg text-[11px] font-code-sm font-semibold transition-all duration-200"
+              :class="[
+                theme === 'dark'
+                  ? 'text-on-surface-variant hover:bg-white/5 hover:text-primary'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-red-700'
+              ]"
+            >
+              01. HOME
+            </button>
+            <button
+              type="button"
+              @click="scrollToSection('about'); mobileMenuOpen = false"
+              class="w-full text-left px-4 py-3 rounded-lg text-[11px] font-code-sm font-semibold transition-all duration-200"
+              :class="[
+                theme === 'dark'
+                  ? 'text-on-surface-variant hover:bg-white/5 hover:text-primary'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-red-700'
+              ]"
+            >
+              02. ABOUT
+            </button>
+            <button
+              type="button"
+              @click="scrollToSection('work-tracing'); mobileMenuOpen = false"
+              class="w-full text-left px-4 py-3 rounded-lg text-[11px] font-code-sm font-semibold transition-all duration-200"
+              :class="[
+                theme === 'dark'
+                  ? 'text-on-surface-variant hover:bg-white/5 hover:text-primary'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-red-700'
+              ]"
+            >
+              03. WORK TRACING
+            </button>
+            <button
+              type="button"
+              @click="scrollToSection('experience'); mobileMenuOpen = false"
+              class="w-full text-left px-4 py-3 rounded-lg text-[11px] font-code-sm font-semibold transition-all duration-200"
+              :class="[
+                theme === 'dark'
+                  ? 'text-on-surface-variant hover:bg-white/5 hover:text-primary'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-red-700'
+              ]"
+            >
+              04. EXPERIENCE
+            </button>
+            <button
+              type="button"
+              @click="scrollToSection('portfolio'); mobileMenuOpen = false"
+              class="w-full text-left px-4 py-3 rounded-lg text-[11px] font-code-sm font-semibold transition-all duration-200"
+              :class="[
+                theme === 'dark'
+                  ? 'text-on-surface-variant hover:bg-white/5 hover:text-primary'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-red-700'
+              ]"
+            >
+              05. EXPERTISE
+            </button>
+          </div>
+        </div>
+      </transition>
     </nav>
 
     <!-- Hero Section -->
@@ -602,6 +702,7 @@ const lastScrollTop = ref(0)
 const onLastScrollTop = ref(0)
 
 const activeCategory = ref('development')
+const mobileMenuOpen = ref(false)
 
 const experiences = ref([])
 const workTracing = ref([])
@@ -674,6 +775,7 @@ const handleScroll = () => {
   // Navbar hides when scrolling down, shows when scrolling up
   if (scrollTop > lastScrollTop.value && scrollTop > 100) {
     isHidden.value = true
+    mobileMenuOpen.value = false
   } else {
     isHidden.value = false
   }
@@ -797,5 +899,21 @@ onUnmounted(() => {
 .toast-leave-to {
   opacity: 0;
   transform: translateX(30px) scale(0.95);
+}
+
+/* Mobile menu dropdown */
+.dropdown-enter-active {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dropdown-leave-active {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dropdown-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }
 </style>
