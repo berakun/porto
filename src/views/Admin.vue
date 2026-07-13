@@ -1086,9 +1086,8 @@ const pageTitle = computed(() => {
   return titles[activeTab.value] || 'Dashboard'
 })
 
-// Authentication state
+// Authentication state (cookie-based — no token in JS)
 const isAuthenticated = ref(false)
-const authToken = ref(null)
 const username = ref('')
 const password = ref('')
 const loginError = ref('')
@@ -1131,10 +1130,8 @@ const changePassword = async () => {
   try {
     const response = await fetch(`${API_BASE}/auth/change-password`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken.value}`
-      },
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
         currentPassword: passwordChange.value.current,
         newPassword: passwordChange.value.newPassword
@@ -1187,10 +1184,8 @@ const handleLogin = async () => {
       return
     }
     
-    // Store token in sessionStorage (cleared on tab close)
-    authToken.value = data.token
+    // Cookie disimpan otomatis oleh browser — tidak perlu simpan token
     isAuthenticated.value = true
-    sessionStorage.setItem('admin_token', data.token)
   } catch (error) {
     loginError.value = 'Network error. Please try again.'
   }
@@ -1210,7 +1205,7 @@ const loadAnalytics = async () => {
     if (params.length) url += '?' + params.join('&')
     
     const res = await fetch(url, {
-      headers: { 'Authorization': `Bearer ${authToken.value}` }
+      credentials: 'include'
     })
     if (res.ok) {
       analyticsData.value = await res.json()
@@ -1231,7 +1226,7 @@ const contactMessages = ref([])
 const loadMessages = async () => {
   try {
     const res = await fetch(`${API_BASE}/contact-messages`, {
-      headers: { 'Authorization': `Bearer ${authToken.value}` }
+      credentials: 'include'
     })
     if (res.ok) contactMessages.value = await res.json()
   } catch { contactMessages.value = [] }
@@ -1241,7 +1236,7 @@ const markAsRead = async (id) => {
   try {
     await fetch(`${API_BASE}/contact-messages/${id}/read`, {
       method: 'PATCH',
-      headers: { 'Authorization': `Bearer ${authToken.value}` }
+      credentials: 'include'
     })
     await loadMessages()
   } catch {}
@@ -1252,7 +1247,7 @@ const deleteMessage = async (id) => {
   try {
     await fetch(`${API_BASE}/contact-messages/${id}`, {
       method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${authToken.value}` }
+      credentials: 'include'
     })
     await loadMessages()
   } catch {}
@@ -1306,7 +1301,8 @@ const saveWork = async () => {
   try {
     const res = await fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken.value}` },
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(payload)
     })
     if (res.ok) { showWorkForm.value = false; await loadWorkItems() }
@@ -1318,7 +1314,7 @@ const deleteWork = async (id) => {
   try {
     await fetch(`${API_BASE}/work-tracing/${id}`, {
       method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${authToken.value}` }
+      credentials: 'include'
     })
     await loadWorkItems()
   } catch {}
@@ -1381,10 +1377,8 @@ const saveExperiences = async () => {
   try {
     await fetch(`${API_BASE}/experiences`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken.value}`
-      },
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ experiences: experiences.value })
     })
   } catch {
@@ -1474,10 +1468,8 @@ const saveExpertiseToAPI = async () => {
   try {
     await fetch(`${API_BASE}/expertise`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken.value}`
-      },
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ expertise: expertiseItems.value, categories: expertiseCategories.value })
     })
   } catch {
@@ -1649,8 +1641,6 @@ const handleLogout = async () => {
     await fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' })
   } catch {}
   isAuthenticated.value = false
-  authToken.value = null
-  sessionStorage.removeItem('admin_token')
 }
 
 // Simulated logs generator
@@ -1692,13 +1682,12 @@ const toggleTheme = () => {
 }
 
 // Initial configuration loading
-onMounted(() => {
-  // Check auth state from sessionStorage
-  const savedToken = sessionStorage.getItem('admin_token')
-  if (savedToken) {
-    authToken.value = savedToken
-    isAuthenticated.value = true
-  }
+onMounted(async () => {
+  // Check auth via cookie (server reads HttpOnly cookie)
+  try {
+    const res = await fetch(`${API_BASE}/auth/verify`, { credentials: 'include' })
+    if (res.ok) isAuthenticated.value = true
+  } catch {}
 
   // Load theme preference
   theme.value = localStorage.getItem('theme') || 'dark'

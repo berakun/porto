@@ -213,7 +213,7 @@ app.post('/api/auth/login', loginLimiter, async (req, res) => {
     if (!validPassword) return res.status(401).json({ error: 'Invalid credentials' })
 
     const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: '7d' })
-    // Set HttpOnly cookie (XSS-proof)
+    // Set HttpOnly cookie ONLY — jangan kirim token di JSON body
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -221,7 +221,7 @@ app.post('/api/auth/login', loginLimiter, async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari
       path: '/',
     })
-    res.json({ success: true, token, username: user.username })
+    res.json({ success: true, username: user.username })
   } catch (error) {
     console.error('Login error:', error)
     res.status(500).json({ error: 'Internal server error' })
