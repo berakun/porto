@@ -185,7 +185,7 @@
             <button class="md:hidden p-2 text-yellow-600 dark:text-primary rounded hover:bg-gray-100 dark:hover:bg-white/5 transition" @click="mobileSidebarOpen = !mobileSidebarOpen">
               <span class="material-symbols-outlined block">menu</span>
             </button>
-            <h2 class="font-display-lg text-headline-md text-yellow-600 dark:text-primary tracking-tight">Expertise Manager</h2>
+            <h2 class="font-display-lg text-headline-md text-yellow-600 dark:text-primary tracking-tight">{{ pageTitle }}</h2>
           </div>
           
           <div class="flex items-center gap-6">
@@ -1052,8 +1052,8 @@
           <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p class="text-[10px] text-gray-500">© {{ new Date().getFullYear() }} RF Dashboard. All rights reserved.</p>
             <div class="flex gap-4 text-[10px] text-gray-400">
-              <a href="#" class="hover:underline">Documentation</a>
-              <a href="#" class="hover:underline">Privacy Policy</a>
+              <a href="https://berakun.web.id" target="_blank" class="py-3 px-3 min-h-[44px] inline-flex items-center hover:underline">Portfolio</a>
+              <a href="mailto:hello@berakun.web.id" class="py-3 px-3 min-h-[44px] inline-flex items-center hover:underline">Contact</a>
             </div>
           </div>
         </footer>
@@ -1073,6 +1073,18 @@ const theme = ref('dark')
 const activeTab = ref('dashboard')
 const chartType = ref('daily')
 const mobileSidebarOpen = ref(false)
+
+const pageTitle = computed(() => {
+  const titles = {
+    dashboard: 'Dashboard',
+    messages: 'Messages',
+    'work-tracing': 'Work Tracing',
+    experience: 'Manage Experience',
+    expertise: 'Expertise Manager',
+    settings: 'Settings',
+  }
+  return titles[activeTab.value] || 'Dashboard'
+})
 
 // Authentication state
 const isAuthenticated = ref(false)
@@ -1632,7 +1644,10 @@ const chartAreaPath = computed(() => {
 })
 
 
-const handleLogout = () => {
+const handleLogout = async () => {
+  try {
+    await fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' })
+  } catch {}
   isAuthenticated.value = false
   authToken.value = null
   sessionStorage.removeItem('admin_token')

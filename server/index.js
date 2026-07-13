@@ -1,25 +1,92 @@
 require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
+const helmet = require('helmet')
+const rateLimit = require('express-rate-limit')
+const cookieParser = require('cookie-parser')
 const mysql = require('mysql2/promise')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const path = require('path')
 const http = require('http')
-const https = require('https')
 
 const app = express()
 const PORT = process.env.PORT || 3002
 const JWT_SECRET = process.env.JWT_SECRET || 'porto-secret-key-change-in-production'
 const DIST_PATH = path.join(__dirname, '..', 'dist')
 
-app.use(cors({
-  origin: ['https://berakun.web.id', 'http://localhost:1370', 'http://localhost:3002'],
-  credentials: true
+// ── Security Headers (helmet) ──
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'"],
+      frameAncestors: ["'none'"],
+    },
+  },
 }))
-app.use(express.json())
+app.disable('x-powered-by')
 
-// MySQL connection pool
+// ── CORS ──
+app.use(cors({
+  origin: process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map(s => s.trim())
+    : ['https://berakun.web.id', 'http://localhost:1370', 'http://localhost:3002'],
+  credentials: true,
+}))
+
+// ── Body parsers ──
+app.use(express.json())
+app.use(cookieParser())
+
+// ── Rate Limiters ──
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 menit
+  max: 5,                    // 5 attempts gagal
+  message: { error: 'Too many login attempts. Try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    return req.headers['cf-connecting-ip']
+      || req.headers['x-forwarded-for']?.split(',')[0]?.trim()
+      || req.socket.remoteAddress
+      || 'unknown'
+  },
+})
+
+const contactLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 menit
+  max: 5,               // 5 request per IP
+  message: { error: 'Too many requests. Slow down.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    return req.headers['cf-connecting-ip']
+      || req.headers['x-forwarded-for']?.split(',')[0]?.trim()
+      || req.socket.remoteAddress
+      || 'unknown'
+  },
+})
+
+// ── Input sanitization ──
+function stripTags(str) {
+  if (typeof str !== 'string') return ''
+  return str.replace(/<[^>]*>/g, '').replace(/[<>]/g, '')
+}
+function sanitize(obj, fields) {
+  const out = {}
+  for (const k of fields) {
+    if (obj[k] !== undefined) out[k] = stripTags(String(obj[k]))
+    else out[k] = ''
+  }
+  return out
+}
+
+// ── MySQL connection pool ──
 const pool = mysql.createPool({
   host: process.env.DB_HOST || '127.0.0.1',
   user: process.env.DB_USER || 'root',
@@ -27,54 +94,41 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || 'porto',
   waitForConnections: true,
   connectionLimit: 5,
-  dateStrings: true // ← Return DATE/DATETIME as strings, prevent UTC timezone shift
+  dateStrings: true,
 })
 
-// Initialize database and tables
+// ── Initialize database and tables ──
 async function initDB() {
   try {
     await pool.query('CREATE DATABASE IF NOT EXISTS porto')
+    await pool.query(`CREATE TABLE IF NOT EXISTS users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      username VARCHAR(50) UNIQUE NOT NULL,
+      password_hash VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )`)
+    await pool.query(`CREATE TABLE IF NOT EXISTS portfolio_data (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      data_key VARCHAR(50) UNIQUE NOT NULL,
+      data_value JSON NOT NULL,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )`)
+    await pool.query(`CREATE TABLE IF NOT EXISTS visitor_logs (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      ip VARCHAR(45) NOT NULL,
+      country VARCHAR(100) DEFAULT '',
+      city VARCHAR(100) DEFAULT '',
+      isp VARCHAR(150) DEFAULT '',
+      browser VARCHAR(100) DEFAULT '',
+      os VARCHAR(100) DEFAULT '',
+      referrer VARCHAR(500) DEFAULT '',
+      page VARCHAR(500) DEFAULT '/',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_created (created_at),
+      INDEX idx_ip (ip)
+    )`)
 
-    // Create users table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(50) UNIQUE NOT NULL,
-        password_hash VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-    `)
-
-    // Create portfolio_data table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS portfolio_data (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        data_key VARCHAR(50) UNIQUE NOT NULL,
-        data_value JSON NOT NULL,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-    `)
-
-    // Create visitor_logs table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS visitor_logs (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        ip VARCHAR(45) NOT NULL,
-        country VARCHAR(100) DEFAULT '',
-        city VARCHAR(100) DEFAULT '',
-        isp VARCHAR(150) DEFAULT '',
-        browser VARCHAR(100) DEFAULT '',
-        os VARCHAR(100) DEFAULT '',
-        referrer VARCHAR(500) DEFAULT '',
-        page VARCHAR(500) DEFAULT '/',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        INDEX idx_created (created_at),
-        INDEX idx_ip (ip)
-      )
-    `)
-
-    // Check if default admin exists
     const [existing] = await pool.query('SELECT id FROM users WHERE username = ?', ['berakun'])
     if (existing.length === 0) {
       const hash = await bcrypt.hash('qwerty123', 10)
@@ -82,7 +136,6 @@ async function initDB() {
       console.log('Default admin user created: berakun/qwerty123')
     }
 
-    // Seed default expertise categories if empty
     const [catExisting] = await pool.query('SELECT id FROM portfolio_data WHERE data_key = ?', ['expertise_categories'])
     if (catExisting.length === 0) {
       const defaultCategories = JSON.stringify([
@@ -94,7 +147,6 @@ async function initDB() {
       console.log('Default expertise categories seeded')
     }
 
-    // Seed default expertise items if empty
     const [expExisting] = await pool.query('SELECT id FROM portfolio_data WHERE data_key = ?', ['expertise'])
     if (expExisting.length === 0) {
       const defaultExpertise = JSON.stringify([
@@ -109,7 +161,6 @@ async function initDB() {
       console.log('Default expertise seeded')
     }
 
-    // Seed default experiences if empty
     const [oldExpExisting] = await pool.query('SELECT id FROM portfolio_data WHERE data_key = ?', ['experiences'])
     if (oldExpExisting.length === 0) {
       const defaultExperiences = JSON.stringify([
@@ -128,22 +179,28 @@ async function initDB() {
   }
 }
 
-// Auth middleware
+// ── Auth middleware ──
+// Reads token from HttpOnly cookie first, then Authorization header (backward compat)
 const authMiddleware = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1]
-  if (!token) return res.status(401).json({ error: 'No token provided' })
+  let token = null
+  if (req.cookies?.token) {
+    token = req.cookies.token
+  } else if (req.headers.authorization?.startsWith('Bearer ')) {
+    token = req.headers.authorization.split(' ')[1]
+  }
+  if (!token) return res.status(401).json({ error: 'Unauthorized' })
   try {
     const decoded = jwt.verify(token, JWT_SECRET)
     req.userId = decoded.userId
     next()
   } catch {
-    return res.status(401).json({ error: 'Invalid token' })
+    return res.status(401).json({ error: 'Invalid or expired token' })
   }
 }
 
-// === Auth Endpoints ===
+// ── Auth Endpoints ──
 
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', loginLimiter, async (req, res) => {
   try {
     const { username, password } = req.body
     if (!username || !password) return res.status(400).json({ error: 'Username and password required' })
@@ -156,6 +213,14 @@ app.post('/api/auth/login', async (req, res) => {
     if (!validPassword) return res.status(401).json({ error: 'Invalid credentials' })
 
     const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: '7d' })
+    // Set HttpOnly cookie (XSS-proof)
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari
+      path: '/',
+    })
     res.json({ success: true, token, username: user.username })
   } catch (error) {
     console.error('Login error:', error)
@@ -171,6 +236,11 @@ app.get('/api/auth/verify', authMiddleware, async (req, res) => {
   } catch {
     res.status(500).json({ error: 'Internal server error' })
   }
+})
+
+app.post('/api/auth/logout', (req, res) => {
+  res.clearCookie('token', { path: '/' })
+  res.json({ success: true, message: 'Logged out' })
 })
 
 app.post('/api/auth/change-password', authMiddleware, async (req, res) => {
@@ -194,7 +264,7 @@ app.post('/api/auth/change-password', authMiddleware, async (req, res) => {
   }
 })
 
-// === Experience Endpoints ===
+// ── Experience Endpoints ──
 
 // GET experiences (public — landing page reads without auth)
 app.get('/api/experiences', async (req, res) => {
@@ -226,8 +296,9 @@ app.put('/api/experiences', authMiddleware, async (req, res) => {
   }
 })
 
+// ── Work Tracing Endpoints ──
 
-// === Work Tracing Endpoints ===
+// GET work-tracing (public — landing page reads without auth)
 app.get('/api/work-tracing', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM work_tracing ORDER BY sort_order ASC, start_date DESC')
@@ -243,7 +314,6 @@ app.post('/api/work-tracing', authMiddleware, async (req, res) => {
   try {
     const { title, company, type, location, start_date, end_date, is_current, description, tags } = req.body
     if (!title || !company || !start_date) return res.status(400).json({ error: 'title, company, start_date required' })
-    // Format dates for MySQL (YYYY-MM-DD)
     const formatDate = (d) => {
       if (!d) return null
       if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) return d
@@ -268,7 +338,6 @@ app.put('/api/work-tracing/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params
     const { title, company, type, location, start_date, end_date, is_current, description, tags, sort_order } = req.body
-    // Format dates for MySQL (YYYY-MM-DD)
     const formatDate = (d) => {
       if (!d) return null
       if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) return d
@@ -301,7 +370,7 @@ app.delete('/api/work-tracing/:id', authMiddleware, async (req, res) => {
   }
 })
 
-// === Expertise Endpoints ===
+// ── Expertise Endpoints ──
 
 // GET expertise (public — landing page reads without auth)
 app.get('/api/expertise', async (req, res) => {
@@ -340,15 +409,13 @@ app.put('/api/expertise', authMiddleware, async (req, res) => {
   }
 })
 
-// === Visitor Tracking ===
+// ── Visitor Tracking ──
 
-// Simple in-memory IP→geo cache (resets on restart, fine for a portfolio)
 const geoCache = new Map()
 
 function lookupGeo(ip) {
   return new Promise((resolve) => {
     if (geoCache.has(ip)) return resolve(geoCache.get(ip))
-    // Skip private/local IPs
     if (!ip || ip === '::1' || ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.')) {
       const fallback = { country: 'Local', city: '', isp: '' }
       geoCache.set(ip, fallback)
@@ -388,7 +455,6 @@ function parseUA(ua) {
   return { browser, os }
 }
 
-// GET real IP behind Cloudflare/Proxy
 function getClientIP(req) {
   return req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress?.replace('::ffff:', '') || ''
 }
@@ -413,13 +479,12 @@ app.post('/api/track', async (req, res) => {
 })
 
 // GET /api/analytics — auth required, returns aggregated stats
-// Optional query: ?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD
 app.get('/api/analytics', authMiddleware, async (req, res) => {
   try {
     const { start_date, end_date } = req.query
     let dateFilter = ''
     let dateParams = []
-    
+
     if (start_date && end_date) {
       dateFilter = ' WHERE created_at >= ? AND created_at <= ?'
       dateParams = [start_date + ' 00:00:00', end_date + ' 23:59:59']
@@ -431,58 +496,41 @@ app.get('/api/analytics', authMiddleware, async (req, res) => {
       dateParams = [end_date + ' 23:59:59']
     }
 
-    // Today's visitors (unique IPs) - always today regardless of filter
     const [todayRows] = await pool.query(
       "SELECT COUNT(DISTINCT ip) as count FROM visitor_logs WHERE DATE(created_at) = CURDATE()"
     )
-
-    // Total visits (with optional date filter)
     const [totalVisits] = await pool.query(
       'SELECT COUNT(*) as count FROM visitor_logs' + dateFilter, dateParams
     )
-
-    // Unique IPs (with optional date filter)
     const [uniqueIPs] = await pool.query(
       'SELECT COUNT(DISTINCT ip) as count FROM visitor_logs' + dateFilter, dateParams
     )
-
-    // Country breakdown (with optional date filter)
     const [countries] = await pool.query(
-      'SELECT country, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs' + 
-      (dateFilter ? dateFilter + ' AND country != ""' : ' WHERE country != ""') + 
+      'SELECT country, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs' +
+      (dateFilter ? dateFilter + ' AND country != ""' : ' WHERE country != ""') +
       ' GROUP BY country ORDER BY visits DESC LIMIT 20', dateParams
     )
-
-    // Browser breakdown (with optional date filter)
     const [browsers] = await pool.query(
-      'SELECT browser, COUNT(*) as count FROM visitor_logs' + 
-      (dateFilter ? dateFilter + ' AND browser != ""' : ' WHERE browser != ""') + 
+      'SELECT browser, COUNT(*) as count FROM visitor_logs' +
+      (dateFilter ? dateFilter + ' AND browser != ""' : ' WHERE browser != ""') +
       ' GROUP BY browser ORDER BY count DESC', dateParams
     )
-
-    // OS breakdown (with optional date filter)
     const [osList] = await pool.query(
-      'SELECT os, COUNT(*) as count FROM visitor_logs' + 
-      (dateFilter ? dateFilter + ' AND os != ""' : ' WHERE os != ""') + 
+      'SELECT os, COUNT(*) as count FROM visitor_logs' +
+      (dateFilter ? dateFilter + ' AND os != ""' : ' WHERE os != ""') +
       ' GROUP BY os ORDER BY count DESC', dateParams
     )
-
-    // Referrer breakdown (with optional date filter)
     const [referrers] = await pool.query(
-      'SELECT referrer, COUNT(*) as count FROM visitor_logs' + 
-      (dateFilter ? dateFilter + ' AND referrer != "" AND referrer != "Direct"' : ' WHERE referrer != "" AND referrer != "Direct"') + 
+      'SELECT referrer, COUNT(*) as count FROM visitor_logs' +
+      (dateFilter ? dateFilter + ' AND referrer != "" AND referrer != "Direct"' : ' WHERE referrer != "" AND referrer != "Direct"') +
       ' GROUP BY referrer ORDER BY count DESC LIMIT 10', dateParams
     )
-
-    // Daily visits (with optional date filter, or last 7 days by default)
     const [dailyVisits] = await pool.query(
       dateFilter
         ? "SELECT DATE(created_at) as date, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs" + dateFilter + " GROUP BY DATE(created_at) ORDER BY date"
         : "SELECT DATE(created_at) as date, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(created_at) ORDER BY date"
       , dateParams
     )
-
-    // Recent visitors (with optional date filter)
     const [recent] = await pool.query(
       'SELECT ip, country, city, isp, browser, os, referrer, page, created_at FROM visitor_logs' + dateFilter + ' ORDER BY created_at DESC LIMIT 50', dateParams
     )
@@ -504,16 +552,16 @@ app.get('/api/analytics', authMiddleware, async (req, res) => {
   }
 })
 
-// === Contact Messages ===
-app.post('/api/contact', async (req, res) => {
+// ── Contact Messages ──
+app.post('/api/contact', contactLimiter, async (req, res) => {
   try {
-    const { name, phone, project_type, message } = req.body
-    if (!name || !project_type || !message) {
+    const body = sanitize(req.body, ['name', 'phone', 'project_type', 'message'])
+    if (!body.name || !body.project_type || !body.message) {
       return res.status(400).json({ error: 'Name, project type, and message are required' })
     }
     await pool.query(
       'INSERT INTO contact_messages (name, phone, project_type, message) VALUES (?, ?, ?, ?)',
-      [name, phone || '', project_type, message]
+      [body.name, body.phone || '', body.project_type, body.message]
     )
     res.json({ success: true, message: 'Message sent successfully' })
   } catch (error) {
@@ -551,12 +599,12 @@ app.delete('/api/contact-messages/:id', authMiddleware, async (req, res) => {
   }
 })
 
-// === Health check ===
+// ── Health check ──
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-// === Static file serving (Vue frontend) ===
+// ── Static file serving (Vue frontend) ──
 app.use(express.static(DIST_PATH))
 app.get('{*path}', (req, res) => {
   if (!req.path.startsWith('/api')) {
@@ -564,7 +612,7 @@ app.get('{*path}', (req, res) => {
   }
 })
 
-// Start server
+// ── Start server ──
 initDB().then(() => {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Portfolio server running on port ${PORT}`)
