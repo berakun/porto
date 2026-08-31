@@ -745,7 +745,7 @@ const loadWorkTracing = async () => {
 const formatDate = (dateStr) => {
   if (!dateStr) return ''
   const d = new Date(dateStr)
-  return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+  return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'Asia/Jakarta' })
 }
 
 const calcDuration = (work) => {

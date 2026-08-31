@@ -10,6 +10,16 @@ const jwt = require('jsonwebtoken')
 const path = require('path')
 const http = require('http')
 
+// ── Local file logging (logs/app.log) ──
+const { appendFileSync, mkdirSync, existsSync } = require('fs')
+const logsDir = require('path').join(__dirname, 'logs')
+if (!existsSync(logsDir)) mkdirSync(logsDir, { recursive: true })
+function writeLog(level, message) {
+  const timeStr = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).slice(0, 19)
+  const line = `[${timeStr}] [${level}] ${message}\n`
+  try { appendFileSync(require('path').join(logsDir, 'app.log'), line) } catch {}
+}
+
 const app = express()
 const PORT = process.env.PORT || 3002
 const JWT_SECRET = process.env.JWT_SECRET || 'porto-secret-key-change-in-production'
@@ -95,6 +105,7 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 5,
   dateStrings: true,
+  timezone: '+07:00',
 })
 
 // ── Initialize database and tables ──
@@ -531,9 +542,14 @@ app.get('/api/analytics', authMiddleware, async (req, res) => {
         : "SELECT DATE(created_at) as date, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(created_at) ORDER BY date"
       , dateParams
     )
-    const [recent] = await pool.query(
+    const [recentRows] = await pool.query(
       'SELECT ip, country, city, isp, browser, os, referrer, page, created_at FROM visitor_logs' + dateFilter + ' ORDER BY created_at DESC LIMIT 50', dateParams
     )
+    // Convert MySQL timestamp string (UTC) to ISO format for proper JS Date parsing
+    const recent = recentRows.map(r => ({
+      ...r,
+      created_at: r.created_at ? new Date(r.created_at + 'Z').toISOString() : null
+    }))
 
     res.json({
       todayVisitors: todayRows[0].count,
@@ -615,6 +631,11 @@ app.get('{*path}', (req, res) => {
 // ── Start server ──
 initDB().then(() => {
   app.listen(PORT, '0.0.0.0', () => {
+    writeLog('INFO', `Portfolio auth server started on port ${PORT}`);
     console.log(`Portfolio server running on port ${PORT}`)
   })
 })
+
+// Global error handlers
+process.on('uncaughtException', (err) => { writeLog('ERROR', `Uncaught: ${err.message}`); console.error(err); });
+process.on('unhandledRejection', (err) => { writeLog('ERROR', `Unhandled rejection: ${err}`); console.error(err); });

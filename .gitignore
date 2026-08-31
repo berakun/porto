@@ -27,3 +27,6 @@ yarn-error.log*
 
 # server dependencies
 server/node_modules
+
+# Logs
+logs/

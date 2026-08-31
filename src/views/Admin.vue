@@ -510,7 +510,7 @@
                     </div>
                     <div>
                       <h4 class="text-sm font-bold text-gray-800 dark:text-white">{{ msg.name }}</h4>
-                      <p class="text-[10px] text-gray-400">{{ new Date(msg.created_at).toLocaleString() }}</p>
+                      <p class="text-[10px] text-gray-400">{{ new Date(msg.created_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) }}</p>
                     </div>
                     <span v-if="!msg.is_read" class="w-2 h-2 rounded-full bg-yellow-600 dark:bg-primary animate-pulse"></span>
                   </div>
