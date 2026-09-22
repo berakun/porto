@@ -17,7 +17,12 @@ if (!existsSync(logsDir)) mkdirSync(logsDir, { recursive: true })
 function writeLog(level, message) {
   const timeStr = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).slice(0, 19)
   const line = `[${timeStr}] [${level}] ${message}\n`
-  try { appendFileSync(require('path').join(logsDir, 'app.log'), line) } catch {}
+  try {
+    appendFileSync(require('path').join(logsDir, 'app.log'), line)
+  } catch (err) {
+    // Fallback: log file write failure to stderr to avoid silent data loss
+    process.stderr.write(`[writeLog] Failed to write log: ${err.message}\n`)
+  }
 }
 
 const app = express()
@@ -54,18 +59,21 @@ app.use(express.json())
 app.use(cookieParser())
 
 // ── Rate Limiters ──
+// Shared IP key generator for all rate limiters
+function getClientKey(req) {
+  return req.headers['cf-connecting-ip']
+    || req.headers['x-forwarded-for']?.split(',')[0]?.trim()
+    || req.socket.remoteAddress
+    || 'unknown'
+}
+
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 menit
   max: 5,                    // 5 attempts gagal
   message: { error: 'Too many login attempts. Try again in 15 minutes.' },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => {
-    return req.headers['cf-connecting-ip']
-      || req.headers['x-forwarded-for']?.split(',')[0]?.trim()
-      || req.socket.remoteAddress
-      || 'unknown'
-  },
+  keyGenerator: getClientKey,
 })
 
 const contactLimiter = rateLimit({
@@ -74,12 +82,7 @@ const contactLimiter = rateLimit({
   message: { error: 'Too many requests. Slow down.' },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => {
-    return req.headers['cf-connecting-ip']
-      || req.headers['x-forwarded-for']?.split(',')[0]?.trim()
-      || req.socket.remoteAddress
-      || 'unknown'
-  },
+  keyGenerator: getClientKey,
 })
 
 // ── Input sanitization ──
@@ -144,7 +147,7 @@ async function initDB() {
     if (existing.length === 0) {
       const hash = await bcrypt.hash('qwerty123', 10)
       await pool.query('INSERT INTO users (username, password_hash) VALUES (?, ?)', ['berakun', hash])
-      console.log('Default admin user created: berakun/qwerty123')
+      writeLog('INFO', 'Default admin user created: berakun')
     }
 
     const [catExisting] = await pool.query('SELECT id FROM portfolio_data WHERE data_key = ?', ['expertise_categories'])
@@ -155,7 +158,7 @@ async function initDB() {
         { id: 'database', label: '03. DATABASE' }
       ])
       await pool.query('INSERT INTO portfolio_data (data_key, data_value) VALUES (?, ?)', ['expertise_categories', defaultCategories])
-      console.log('Default expertise categories seeded')
+      writeLog('INFO', 'Default expertise categories seeded')
     }
 
     const [expExisting] = await pool.query('SELECT id FROM portfolio_data WHERE data_key = ?', ['expertise'])
@@ -169,7 +172,7 @@ async function initDB() {
         { id: 6, category: 'database', icon: 'storage', title: 'Database Management', description: 'Designing and optimizing relational databases for web applications.', tags: ['MySQL'] }
       ])
       await pool.query('INSERT INTO portfolio_data (data_key, data_value) VALUES (?, ?)', ['expertise', defaultExpertise])
-      console.log('Default expertise seeded')
+      writeLog('INFO', 'Default expertise seeded')
     }
 
     const [oldExpExisting] = await pool.query('SELECT id FROM portfolio_data WHERE data_key = ?', ['experiences'])
@@ -181,12 +184,12 @@ async function initDB() {
         { id: 4, title: 'Omni CRM', role: 'Full-stack Developer', description: 'Omnichannel CRM with ticketing system, inbox management, and dashboard reports. Real-time messaging with Socket.io integration.', icon: 'support_agent', tags: ['Vue 3', 'Express', 'Socket.io'] }
       ])
       await pool.query('INSERT INTO portfolio_data (data_key, data_value) VALUES (?, ?)', ['experiences', defaultExperiences])
-      console.log('Default experiences seeded')
+      writeLog('INFO', 'Default experiences seeded')
     }
 
-    console.log('Database initialized successfully')
+    writeLog('INFO', 'Database initialized successfully')
   } catch (error) {
-    console.error('Database initialization error:', error)
+    writeLog('ERROR', `Database initialization error: ${error.message}`)
   }
 }
 
@@ -432,7 +435,8 @@ function lookupGeo(ip) {
       geoCache.set(ip, fallback)
       return resolve(fallback)
     }
-    const req = http.get(`http://ip-api.com/json/${ip}?fields=status,country,city,isp`, { timeout: 3000 }, (res) => {
+    const geoApiUrl = process.env.GEO_API_URL || 'http://ip-api.com/json'
+    const req = http.get(`${geoApiUrl}/${ip}?fields=status,country,city,isp`, { timeout: 3000 }, (res) => {
       let data = ''
       res.on('data', c => data += c)
       res.on('end', () => {
@@ -489,62 +493,61 @@ app.post('/api/track', async (req, res) => {
   }
 })
 
+// ── Analytics query builder (parameterized, no string concat) ──
+function buildDateFilter(startDate, endDate) {
+  const conditions = []
+  const params = []
+  if (startDate) {
+    conditions.push('created_at >= ?')
+    params.push(startDate + ' 00:00:00')
+  }
+  if (endDate) {
+    conditions.push('created_at <= ?')
+    params.push(endDate + ' 23:59:59')
+  }
+  return { conditions, params }
+}
+
+function buildWhere(conditions, extraConditions = []) {
+  const all = [...conditions, ...extraConditions]
+  return all.length > 0 ? ` WHERE ${all.join(' AND ')}` : ''
+}
+
 // GET /api/analytics — auth required, returns aggregated stats
 app.get('/api/analytics', authMiddleware, async (req, res) => {
   try {
     const { start_date, end_date } = req.query
-    let dateFilter = ''
-    let dateParams = []
-
-    if (start_date && end_date) {
-      dateFilter = ' WHERE created_at >= ? AND created_at <= ?'
-      dateParams = [start_date + ' 00:00:00', end_date + ' 23:59:59']
-    } else if (start_date) {
-      dateFilter = ' WHERE created_at >= ?'
-      dateParams = [start_date + ' 00:00:00']
-    } else if (end_date) {
-      dateFilter = ' WHERE created_at <= ?'
-      dateParams = [end_date + ' 23:59:59']
-    }
+    const { conditions, params: dateParams } = buildDateFilter(start_date, end_date)
 
     const [todayRows] = await pool.query(
       "SELECT COUNT(DISTINCT ip) as count FROM visitor_logs WHERE DATE(created_at) = CURDATE()"
     )
-    const [totalVisits] = await pool.query(
-      'SELECT COUNT(*) as count FROM visitor_logs' + dateFilter, dateParams
-    )
-    const [uniqueIPs] = await pool.query(
-      'SELECT COUNT(DISTINCT ip) as count FROM visitor_logs' + dateFilter, dateParams
-    )
-    const [countries] = await pool.query(
-      'SELECT country, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs' +
-      (dateFilter ? dateFilter + ' AND country != ""' : ' WHERE country != ""') +
-      ' GROUP BY country ORDER BY visits DESC LIMIT 20', dateParams
-    )
-    const [browsers] = await pool.query(
-      'SELECT browser, COUNT(*) as count FROM visitor_logs' +
-      (dateFilter ? dateFilter + ' AND browser != ""' : ' WHERE browser != ""') +
-      ' GROUP BY browser ORDER BY count DESC', dateParams
-    )
-    const [osList] = await pool.query(
-      'SELECT os, COUNT(*) as count FROM visitor_logs' +
-      (dateFilter ? dateFilter + ' AND os != ""' : ' WHERE os != ""') +
-      ' GROUP BY os ORDER BY count DESC', dateParams
-    )
-    const [referrers] = await pool.query(
-      'SELECT referrer, COUNT(*) as count FROM visitor_logs' +
-      (dateFilter ? dateFilter + ' AND referrer != "" AND referrer != "Direct"' : ' WHERE referrer != "" AND referrer != "Direct"') +
-      ' GROUP BY referrer ORDER BY count DESC LIMIT 10', dateParams
-    )
-    const [dailyVisits] = await pool.query(
-      dateFilter
-        ? "SELECT DATE(created_at) as date, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs" + dateFilter + " GROUP BY DATE(created_at) ORDER BY date"
-        : "SELECT DATE(created_at) as date, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(created_at) ORDER BY date"
-      , dateParams
-    )
-    const [recentRows] = await pool.query(
-      'SELECT ip, country, city, isp, browser, os, referrer, page, created_at FROM visitor_logs' + dateFilter + ' ORDER BY created_at DESC LIMIT 50', dateParams
-    )
+
+    const totalVisitsSQL = 'SELECT COUNT(*) as count FROM visitor_logs' + buildWhere(conditions)
+    const [totalVisits] = await pool.query(totalVisitsSQL, dateParams)
+
+    const uniqueIPsSQL = 'SELECT COUNT(DISTINCT ip) as count FROM visitor_logs' + buildWhere(conditions)
+    const [uniqueIPs] = await pool.query(uniqueIPsSQL, dateParams)
+
+    const countriesSQL = 'SELECT country, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs' + buildWhere(conditions, ['country != ""']) + ' GROUP BY country ORDER BY visits DESC LIMIT 20'
+    const [countries] = await pool.query(countriesSQL, dateParams)
+
+    const browsersSQL = 'SELECT browser, COUNT(*) as count FROM visitor_logs' + buildWhere(conditions, ['browser != ""']) + ' GROUP BY browser ORDER BY count DESC'
+    const [browsers] = await pool.query(browsersSQL, dateParams)
+
+    const osSQL = 'SELECT os, COUNT(*) as count FROM visitor_logs' + buildWhere(conditions, ['os != ""']) + ' GROUP BY os ORDER BY count DESC'
+    const [osList] = await pool.query(osSQL, dateParams)
+
+    const referrersSQL = 'SELECT referrer, COUNT(*) as count FROM visitor_logs' + buildWhere(conditions, ['referrer != ""', 'referrer != "Direct"']) + ' GROUP BY referrer ORDER BY count DESC LIMIT 10'
+    const [referrers] = await pool.query(referrersSQL, dateParams)
+
+    const dailyVisitsSQL = conditions.length > 0
+      ? 'SELECT DATE(created_at) as date, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs' + buildWhere(conditions) + ' GROUP BY DATE(created_at) ORDER BY date'
+      : 'SELECT DATE(created_at) as date, COUNT(*) as visits, COUNT(DISTINCT ip) as unique_visitors FROM visitor_logs WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(created_at) ORDER BY date'
+    const [dailyVisits] = await pool.query(dailyVisitsSQL, dateParams)
+
+    const recentSQL = 'SELECT ip, country, city, isp, browser, os, referrer, page, created_at FROM visitor_logs' + buildWhere(conditions) + ' ORDER BY created_at DESC LIMIT 50'
+    const [recentRows] = await pool.query(recentSQL, dateParams)
     // Convert MySQL timestamp string (UTC) to ISO format for proper JS Date parsing
     const recent = recentRows.map(r => ({
       ...r,
@@ -600,7 +603,8 @@ app.patch('/api/contact-messages/:id/read', authMiddleware, async (req, res) => 
   try {
     await pool.query('UPDATE contact_messages SET is_read = TRUE WHERE id = ?', [req.params.id])
     res.json({ success: true })
-  } catch (error) {
+  } catch (_err) {
+    writeLog('ERROR', `Mark message read error: ${_err.message}`)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -632,7 +636,7 @@ app.get('{*path}', (req, res) => {
 initDB().then(() => {
   app.listen(PORT, '0.0.0.0', () => {
     writeLog('INFO', `Portfolio auth server started on port ${PORT}`);
-    console.log(`Portfolio server running on port ${PORT}`)
+    writeLog('INFO', `Portfolio server running on port ${PORT}`)
   })
 })
 

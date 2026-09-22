@@ -1,0 +1,34 @@
+
+> porto@0.1.0 scan
+> aislop scan -d
+
+ aislop 0.16.1  ·  the quality gate for agentic coding
+
+ Scan result  ·  porto  ·  javascript  ·  6 files
+
+ Scope  6 file(s) after exclusions
+  > Code Quality
+    [WARN] File too large (max: 400)
+      server/index.js  646 lines
+      Consider splitting this file into smaller modules
+
+  > Security
+    [INFO] Dependency audit did not complete (npm audit)
+      package.json
+      Failed to run npm audit: Failed to run npm: spawn npm ENOENT
+
+
+   96 / 100  Healthy       0 errors  ·  1 warning  ·  0 fixable
+   6 files  ·  5 engines  ·  382ms
+
+   Verdict mix: 1 style/policy  ·  1 conservative security  ·  2 medium-confidence
+
+ Top findings
+   #  Finding                   Rule                               Status
+   1  File too large            complexity/file-too-large          1 warn
+   1  Dependency audit skipped  security/dependency-audit-skipped  1 info
+
+ Agent repair plan
+   Agent     aislop agent                   run a local worktree repair session
+   Provider  aislop agent --provider codex  or use --provider claude/opencode
+   Preview   aislop agent plan              preview provider, worktree, findings, and publish actions

@@ -1,0 +1,9 @@
+node_modules/
+server/node_modules/
+dist/
+build/
+backup/
+ui-update/
+server/logs/
+logs/
+.git/
