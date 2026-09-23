@@ -846,7 +846,13 @@ const logVisit = async () => {
         referrer: document.referrer || ''
       })
     })
-  } catch { /* silent */ }
+  } catch (err) {
+    // ponytail: silently ignore network tracking failure in client-side analytics to avoid blocking user UI
+    // upgrade when: persistent offline queue or retry worker is implemented
+    if (import.meta.env.DEV) {
+      console.debug('[Analytics] Failed to log visit:', err)
+    }
+  }
 }
 
 onMounted(() => {
