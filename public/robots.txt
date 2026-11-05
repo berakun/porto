@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /login
 Disallow: /api
 
-Sitemap: https://berakun.web.id/sitemap.xml
+Sitemap: https://rifkifirdaus.ai.id/sitemap.xml

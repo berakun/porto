@@ -1,0 +1,13 @@
+# Kredensial tidak boleh masuk image. Env datang dari compose Dokploy.
+**/.env
+**/.env.*
+!**/.env.example
+
+**/.git
+**/node_modules
+**/logs
+**/*.log
+**/*.sqlite
+**/*.db
+**/__pycache__
+**/*.pyc

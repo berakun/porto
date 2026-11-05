@@ -633,7 +633,25 @@ app.get('{*path}', (req, res) => {
 })
 
 // ── Start server ──
-initDB().then(() => {
+// initDB menelan error, jadi server tetap listen walau tabel gagal dibuat.
+// Setelah reboot MySQL belum siap -> init gagal senyap -> app 500 sampai restart.
+// Retry dulu supaya init benar-benar selesai sebelum listen.
+// ponytail: 30x2s (~60s). Naikkan kalau boot disk lambat.
+async function initDbWithRetry({ attempts = 30, delayMs = 2000 } = {}) {
+  for (let i = 1; i <= attempts; i++) {
+    await initDB()
+    try {
+      await pool.query('SELECT 1 FROM users LIMIT 1')
+      if (i > 1) writeLog('INFO', `DB siap setelah ${i} percobaan`)
+      return
+    } catch {
+      if (i === attempts) { writeLog('ERROR', 'DB tidak siap setelah semua percobaan'); return }
+      await new Promise((r) => setTimeout(r, delayMs))
+    }
+  }
+}
+
+initDbWithRetry().then(() => {
   app.listen(PORT, '0.0.0.0', () => {
     writeLog('INFO', `Portfolio auth server started on port ${PORT}`);
     writeLog('INFO', `Portfolio server running on port ${PORT}`)
