@@ -34,3 +34,10 @@ logs/
 # compose manual nonaktif — berisi kredensial, jangan pernah masuk git
 docker-compose*.disabled
 *.disabled
+
+# file kerja desain/dokumen, bukan bagian build
+*.pdf
+pdf_preview_*.png
+portfolio_chatbot_*.png
+dynamic_api_architecture_diagram.png
+Conversational_AI_User_Journey_Specification.pdf
