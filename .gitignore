@@ -30,3 +30,7 @@ server/node_modules
 
 # Logs
 logs/
+
+# compose manual nonaktif — berisi kredensial, jangan pernah masuk git
+docker-compose*.disabled
+*.disabled
